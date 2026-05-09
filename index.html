@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toway Music</title>
-    <!-- モダンなフォントを導入 -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -18,56 +17,35 @@
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            color: var(--text-main);
-            height: 100vh;
-            overflow: hidden;
+            color: var(--text-main); height: 100vh; overflow: hidden;
             background-color: #050505;
         }
 
-        /* アートワークを背景にぼかして配置（Apple Music風） */
         .bg-blur {
-            position: fixed;
-            top: -10%; left: -10%;
-            width: 120%; height: 120%;
-            object-fit: cover;
-            filter: blur(100px) brightness(0.3) saturate(1.5);
-            z-index: -1;
-            transition: all 1s ease;
+            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
+            object-fit: cover; filter: blur(100px) brightness(0.3) saturate(1.5);
+            z-index: -1; transition: all 1s ease;
         }
 
-        /* スクロールバーのモダン化 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
 
-        /* グラスモーフィズム共通 */
         .glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border: 1px solid var(--glass-border);
+            background: var(--glass-bg); backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px); border: 1px solid var(--glass-border);
             border-radius: 20px;
         }
 
-        /* ログイン画面 */
         #login-screen {
-            display: flex;
-            height: 100vh;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 100;
+            display: flex; height: 100vh; justify-content: center;
+            align-items: center; flex-direction: column; z-index: 100;
         }
         #login-screen.hidden { display: none !important; }
-        .login-box {
-            text-align: center;
-            padding: 60px 80px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
+        .login-box { text-align: center; padding: 60px 80px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .login-box h1 { font-size: 3rem; margin-bottom: 5px; font-weight: 700; }
         .login-box p { color: var(--text-sub); margin-bottom: 30px; font-weight: 300; }
         .premium-tag {
@@ -76,26 +54,20 @@
             display: inline-block; margin-bottom: 20px; border: 1px solid var(--spotify-green);
         }
         #login-btn {
-            background: var(--text-main); color: #000;
-            border: none; padding: 15px 40px; border-radius: 30px;
-            font-size: 1.1rem; font-weight: 700; cursor: pointer;
-            transition: transform 0.3s ease, background 0.3s;
+            background: var(--text-main); color: #000; border: none;
+            padding: 15px 40px; border-radius: 30px; font-size: 1.1rem;
+            font-weight: 700; cursor: pointer; transition: transform 0.3s ease, background 0.3s;
         }
         #login-btn:hover { transform: scale(1.05); background: #eee; }
 
-        /* メインアプリ構造 */
         #app-screen {
-            display: none; height: 100vh;
-            grid-template-columns: 320px 1fr;
-            grid-template-rows: 1fr 110px;
-            padding: 20px; gap: 20px; box-sizing: border-box;
+            display: none; height: 100vh; grid-template-columns: 320px 1fr;
+            grid-template-rows: 1fr 110px; padding: 20px; gap: 20px; box-sizing: border-box;
         }
         #app-screen.active { display: grid; }
 
-        /* サイドバー（履歴エリア） */
         .sidebar {
-            grid-row: 1 / 2;
-            display: flex; flex-direction: column;
+            grid-row: 1 / 2; display: flex; flex-direction: column;
             padding: 20px; overflow: hidden;
         }
         .sidebar-section { flex: 1; display: flex; flex-direction: column; min-height: 0; margin-bottom: 20px; }
@@ -114,7 +86,6 @@
         .artist-name-side { font-size: 0.8rem; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .time-info { text-align: right; font-size: 0.75rem; color: var(--text-sub); }
 
-        /* メイン画面（アートワーク＆歌詞） */
         .main-content {
             grid-row: 1 / 2; display: flex; gap: 30px; padding: 20px; overflow: hidden;
         }
@@ -131,14 +102,9 @@
         #track-name { font-size: 2.5rem; font-weight: 700; margin: 0 0 5px 0; text-align: center; }
         #artist-name { font-size: 1.2rem; color: var(--text-sub); font-weight: 400; margin: 0; text-align: center; }
 
-        .lyrics-section {
-            flex: 1; padding: 40px; overflow-y: auto; text-align: center;
-        }
-        #lyrics-text {
-            font-size: 1.3rem; line-height: 2.2; color: rgba(255,255,255,0.85); font-weight: 600; white-space: pre-wrap;
-        }
+        .lyrics-section { flex: 1; padding: 40px; overflow-y: auto; text-align: center; }
+        #lyrics-text { font-size: 1.3rem; line-height: 2.2; color: rgba(255,255,255,0.85); font-weight: 600; white-space: pre-wrap; }
 
-        /* プレイヤーバー（下部） */
         .player-bar {
             grid-column: 1 / 3; grid-row: 2 / 3;
             display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
@@ -156,12 +122,11 @@
         .play-pause-btn {
             background: var(--text-main); color: #000; width: 45px; height: 45px; border-radius: 50%;
             display: flex; justify-content: center; align-items: center; font-size: 1.2rem;
-            border: none; cursor: pointer; transition: transform 0.2s; padding-left: 3px; /* アイコンのズレ補正 */
+            border: none; cursor: pointer; transition: transform 0.2s; padding-left: 3px;
         }
         .play-pause-btn.playing { padding-left: 0; }
         .play-pause-btn:hover { transform: scale(1.1); }
 
-        /* プログレスバー */
         .progress-container { display: flex; align-items: center; width: 100%; gap: 15px; font-size: 0.8rem; color: var(--text-sub); font-weight: 600; }
         .progress-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; cursor: pointer; position: relative; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: var(--text-main); width: 0%; border-radius: 3px; transition: width 0.1s linear; }
@@ -171,10 +136,8 @@
     </style>
 </head>
 <body>
-    <!-- 背景のぼかしアートワーク -->
     <img id="bg-artwork" class="bg-blur" src="" alt="">
 
-    <!-- ログイン画面 -->
     <div id="login-screen">
         <div class="login-box glass">
             <div class="premium-tag">PREMIUM ONLY</div>
@@ -184,18 +147,14 @@
         </div>
     </div>
 
-    <!-- メインアプリ画面 -->
     <div id="app-screen">
-        <!-- サイドバー -->
         <aside class="sidebar glass">
-            <!-- ブラウザローカル履歴 -->
             <div class="sidebar-section">
                 <h2><i class="fas fa-history"></i> このブラウザの再生履歴</h2>
                 <ul id="local-history-list" class="history-list">
                     <div style="text-align:center; padding: 20px; color: var(--text-sub); font-size:0.9rem;">まだ履歴がありません</div>
                 </ul>
             </div>
-            <!-- Spotify API 履歴 -->
             <div class="sidebar-section">
                 <h2><i class="fab fa-spotify"></i> 最近のアクティビティ</h2>
                 <ul id="api-history-list" class="history-list">
@@ -204,7 +163,6 @@
             </div>
         </aside>
 
-        <!-- メイン画面 -->
         <main class="main-content">
             <div class="visual-section">
                 <img id="album-art" src="" alt="Album Art" class="album-art-large" style="display: none;">
@@ -217,10 +175,9 @@
             </div>
         </main>
 
-        <!-- プレイヤーバー -->
         <footer class="player-bar glass">
             <div class="player-left">
-                <img id="player-art" src="https://via.placeholder.com/64" alt="" style="display: none;">
+                <img id="player-art" src="" alt="" style="display: none;">
                 <div class="player-left-info">
                     <span id="player-track">-</span>
                     <span id="player-artist">-</span>
@@ -233,7 +190,6 @@
                     <button class="play-pause-btn" id="play-btn"><i class="fas fa-play"></i></button>
                     <button class="control-btn" id="next-btn"><i class="fas fa-forward-step"></i></button>
                 </div>
-                <!-- シークバー（再生時間） -->
                 <div class="progress-container">
                     <span id="time-current">0:00</span>
                     <div class="progress-bar-bg" id="progress-bg">
@@ -253,45 +209,92 @@
     <script>
         const CLIENT_ID = '09348ba1442d457cb15867622af1f96a';
         const REDIRECT_URI = 'https://towabii.github.io/toway.music/';
-        const SCOPES = [
-            'streaming', 'user-read-email', 'user-read-private', 
-            'user-read-playback-state', 'user-modify-playback-state', 'user-read-recently-played'
-        ];
+        const SCOPES = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-recently-played';
 
         let token = null;
         let player = null;
         let deviceId = null;
         let currentTrackId = null;
         let progressInterval = null;
+        let isSdkReady = false;
 
-        // ログイン処理
-        document.getElementById('login-btn').addEventListener('click', () => {
-            const authUrl = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES.join(' '))}`;
-            window.location.href = authUrl;
-        });
-
-        // トークン取得
-        const hash = window.location.hash.substring(1).split('&').reduce((initial, item) => {
-            if (item) {
-                let parts = item.split('=');
-                initial[parts[0]] = decodeURIComponent(parts[1]);
+        // --- 最新のセキュリティ認証 (PKCE) ---
+        function generateRandomString(length) {
+            let text = '';
+            const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            for (let i = 0; i < length; i++) {
+                text += possible.charAt(Math.floor(Math.random() * possible.length));
             }
-            return initial;
-        }, {});
-        window.location.hash = '';
-
-        if (hash.access_token) {
-            token = hash.access_token;
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.add('active');
-            
-            fetchApiHistory();
-            renderLocalHistory();
+            return text;
         }
 
-        // Spotify Web Playback SDK
+        async function generateCodeChallenge(codeVerifier) {
+            const data = new TextEncoder().encode(codeVerifier);
+            const digest = await window.crypto.subtle.digest('SHA-256', data);
+            return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '');
+        }
+
+        document.getElementById('login-btn').addEventListener('click', async () => {
+            const codeVerifier = generateRandomString(128);
+            const codeChallenge = await generateCodeChallenge(codeVerifier);
+            window.localStorage.setItem('code_verifier', codeVerifier);
+
+            const args = new URLSearchParams({
+                response_type: 'code',
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                redirect_uri: REDIRECT_URI,
+                code_challenge_method: 'S256',
+                code_challenge: codeChallenge
+            });
+            window.location = 'https://accounts.spotify.com/authorize?' + args;
+        });
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let code = urlParams.get('code');
+
+        if (code) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            const codeVerifier = localStorage.getItem('code_verifier');
+            
+            const body = new URLSearchParams({
+                grant_type: 'authorization_code',
+                code: code,
+                redirect_uri: REDIRECT_URI,
+                client_id: CLIENT_ID,
+                code_verifier: codeVerifier
+            });
+
+            fetch('https://accounts.spotify.com/api/token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.access_token) {
+                    token = data.access_token;
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('app-screen').classList.add('active');
+                    fetchApiHistory();
+                    renderLocalHistory();
+                    initSpotifyPlayer();
+                }
+            })
+            .catch(err => console.error('認証エラー:', err));
+        }
+
+        // --- プレイヤー初期化 ---
         window.onSpotifyWebPlaybackSDKReady = () => {
-            if (!token) return;
+            isSdkReady = true;
+            initSpotifyPlayer();
+        };
+
+        function initSpotifyPlayer() {
+            if (!isSdkReady || !token || player) return;
 
             player = new Spotify.Player({
                 name: 'Toway Web Player',
@@ -312,7 +315,6 @@
                 updateUI(track, isPlaying);
                 handleProgress(isPlaying, state.position, track.duration_ms);
 
-                // 曲が変わった時だけローカル履歴に保存
                 if (currentTrackId !== track.id) {
                     currentTrackId = track.id;
                     saveToLocalHistory(track);
@@ -321,7 +323,7 @@
             });
 
             player.connect();
-        };
+        }
 
         async function transferPlaybackToWebBrowser(device_id) {
             await fetch('https://api.spotify.com/v1/me/player', {
@@ -331,27 +333,22 @@
             });
         }
 
-        // UI更新
+        // --- UI更新・機能 ---
         function updateUI(track, isPlaying) {
             const imgUrl = track.album.images[0].url;
-            
-            // 背景とメインアートワーク
             document.getElementById('bg-artwork').src = imgUrl;
+            
             const albumArt = document.getElementById('album-art');
-            albumArt.src = imgUrl;
-            albumArt.style.display = 'block';
+            albumArt.src = imgUrl; albumArt.style.display = 'block';
 
             document.getElementById('track-name').innerText = track.name;
             document.getElementById('artist-name').innerText = track.artists[0].name;
             
-            // プレイヤーバー
             const playerArt = document.getElementById('player-art');
-            playerArt.src = imgUrl;
-            playerArt.style.display = 'block';
+            playerArt.src = imgUrl; playerArt.style.display = 'block';
             document.getElementById('player-track').innerText = track.name;
             document.getElementById('player-artist').innerText = track.artists[0].name;
 
-            // 再生ボタンのアイコン切り替え
             const playBtn = document.getElementById('play-btn');
             if (isPlaying) {
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -362,7 +359,6 @@
             }
         }
 
-        // 時間フォーマット (ミリ秒 -> m:ss)
         function formatTime(ms) {
             const totalSeconds = Math.floor(ms / 1000);
             const minutes = Math.floor(totalSeconds / 60);
@@ -370,23 +366,17 @@
             return `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        // シークバーの制御
         function handleProgress(isPlaying, positionMs, durationMs) {
             clearInterval(progressInterval);
             document.getElementById('time-total').innerText = formatTime(durationMs);
-            
             let currentPos = positionMs;
-            
             const updateBar = () => {
                 document.getElementById('time-current').innerText = formatTime(currentPos);
-                const percent = (currentPos / durationMs) * 100;
-                document.getElementById('progress-fill').style.width = `${percent}%`;
+                document.getElementById('progress-fill').style.width = `${(currentPos / durationMs) * 100}%`;
             };
-            
             updateBar();
 
             if (isPlaying) {
-                // 1秒ごとにAPIから正確な状態を取得して同期する
                 progressInterval = setInterval(() => {
                     player.getCurrentState().then(state => {
                         if (!state) return;
@@ -397,7 +387,6 @@
             }
         }
 
-        // 歌詞の取得
         async function fetchLyrics(artist, title) {
             const lyricsEl = document.getElementById('lyrics-text');
             lyricsEl.innerText = "歌詞を検索中...";
@@ -410,26 +399,15 @@
             }
         }
 
-        // --- ブラウザ専用のローカル再生履歴機能 ---
         function saveToLocalHistory(track) {
             let history = JSON.parse(localStorage.getItem('toway_history') || '[]');
-            
-            // 最新の曲が同じ場合は重複保存しない
             if (history.length > 0 && history[0].id === track.id) return;
-
-            const record = {
-                id: track.id,
-                uri: track.uri,
-                name: track.name,
-                artist: track.artists[0].name,
+            history.unshift({
+                id: track.id, uri: track.uri, name: track.name, artist: track.artists[0].name,
                 image: track.album.images[2].url || track.album.images[0].url,
-                duration: track.duration_ms,
-                played_at: Date.now() // 再生した日時
-            };
-
-            history.unshift(record);
-            if (history.length > 30) history.pop(); // 最大30件保存
-            
+                duration: track.duration_ms, played_at: Date.now()
+            });
+            if (history.length > 30) history.pop();
             localStorage.setItem('toway_history', JSON.stringify(history));
             renderLocalHistory();
         }
@@ -438,13 +416,9 @@
             const history = JSON.parse(localStorage.getItem('toway_history') || '[]');
             const list = document.getElementById('local-history-list');
             if (history.length === 0) return;
-            
             list.innerHTML = '';
             history.forEach(item => {
-                const date = new Date(item.played_at);
-                const timeStr = `${date.getHours().toString().padStart(2,'0')}:${date.getMinutes().toString().padStart(2,'0')}`;
-                const durationStr = formatTime(item.duration);
-
+                const d = new Date(item.played_at);
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <img src="${item.image}" alt="">
@@ -453,8 +427,8 @@
                         <span class="artist-name-side">${item.artist}</span>
                     </div>
                     <div class="time-info">
-                        <div>${timeStr}</div>
-                        <div style="margin-top:4px;">${durationStr}</div>
+                        <div>${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}</div>
+                        <div style="margin-top:4px;">${formatTime(item.duration)}</div>
                     </div>
                 `;
                 li.onclick = () => playTrack(item.uri);
@@ -462,7 +436,6 @@
             });
         }
 
-        // --- Spotify APIからの再生履歴 ---
         async function fetchApiHistory() {
             try {
                 const res = await fetch('https://api.spotify.com/v1/me/player/recently-played?limit=15', {
@@ -471,7 +444,6 @@
                 const data = await res.json();
                 const list = document.getElementById('api-history-list');
                 list.innerHTML = '';
-                
                 data.items.forEach(item => {
                     const track = item.track;
                     const li = document.createElement('li');
@@ -485,12 +457,9 @@
                     li.onclick = () => playTrack(track.uri);
                     list.appendChild(li);
                 });
-            } catch (e) {
-                console.error("API履歴の取得に失敗");
-            }
+            } catch (e) { console.error("API履歴エラー"); }
         }
 
-        // 曲を指定して再生
         async function playTrack(uri) {
             if (!deviceId) return;
             await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
@@ -500,23 +469,16 @@
             });
         }
 
-        // コントロールボタン処理
         document.getElementById('play-btn').addEventListener('click', () => player && player.togglePlay());
         document.getElementById('next-btn').addEventListener('click', () => player && player.nextTrack());
         document.getElementById('prev-btn').addEventListener('click', () => player && player.previousTrack());
 
-        // シークバーのクリックで再生位置を変更する機能
         document.getElementById('progress-bg').addEventListener('click', function(e) {
             if (!player || !currentTrackId) return;
-            const rect = this.getBoundingClientRect();
-            const clickX = e.clientX - rect.left;
-            const percent = clickX / rect.width;
-            
+            const clickX = e.clientX - this.getBoundingClientRect().left;
+            const percent = clickX / this.getBoundingClientRect().width;
             player.getCurrentState().then(state => {
-                if (!state) return;
-                const duration = state.track_window.current_track.duration_ms;
-                const seekToMs = Math.floor(duration * percent);
-                player.seek(seekToMs);
+                if (state) player.seek(Math.floor(state.track_window.current_track.duration_ms * percent));
             });
         });
     </script>
