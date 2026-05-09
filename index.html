@@ -206,7 +206,7 @@
             <!-- ホーム -->
             <div id="home-view" class="view-section active">
                 <h1 class="header-title">ホーム</h1>
-                <!-- 【新機能】あなたのトップトラックを表示 -->
+                <!-- ホーム画面：よく聴く曲 -->
                 <div class="sidebar-title" style="margin-left:0;">よく聴く曲 (トップトラック)</div>
                 <div class="card-grid" id="top-tracks-grid"></div>
             </div>
@@ -318,8 +318,6 @@
     <script>
         const CLIENT_ID = '09348ba1442d457cb15867622af1f96a';
         const REDIRECT_URI = 'https://towabii.github.io/toway.music/';
-        
-        // 【修正】トップトラックを取得するために「user-top-read」スコープを追加しました
         const SCOPES = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-recently-played user-library-read user-library-modify playlist-read-private playlist-read-collaborative user-top-read';
 
         let token = null, player = null, deviceId = null, currentTrackId = null, progInterval = null;
@@ -405,13 +403,13 @@
 
         // --- データ取得 (ホーム・プレイリスト等) ---
         async function loadData() {
-            // 【新機能】ユーザーのトップトラック(よく聴く曲)を取得してホームに表示
+            // トップトラック(よく聴く曲)の取得
             const topTracks = await api('/me/top/tracks?limit=12&time_range=short_term');
             if(topTracks && topTracks.items) {
                 document.getElementById('top-tracks-grid').innerHTML = topTracks.items.map(t => cardHtml(t, false, true)).join('');
             }
             
-            // プレイリスト一覧の取得と挿入
+            // プレイリスト一覧の取得
             const pl = await api('/me/playlists?limit=50');
             const plContainer = document.getElementById('user-playlists');
             plContainer.innerHTML = '';
@@ -444,87 +442,68 @@
             }
         }
 
+        // 【修正】プレイリスト取得のパスを正しい /tracks に戻しました
         async function loadList(id, name) {
             navTo('list-view');
             document.getElementById('list-title').innerText = name;
             
-            // 【修正】 /items だとエラーになるため、正しい /tracks に戻しました
             const d = await api(`/playlists/${id}/tracks`);
             if(d && d.items) {
-                // プレイリストのURI（コンテキスト）を渡すことで、途中から再生しても次の曲へ進めるようにする
-                renderTable(d.items.map(i=>i.track), 'list-results', `spotify:playlist:${id}`);
+                // 最初のコードの形に完全に戻しました
+                renderTable(d.items.map(i=>i.track), 'list-results');
             }
         }
 
-        // --- 検索機能 (トップ結果付き) ---
+        // --- 検索機能 ---
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             const q = e.target.value.trim();
             
-            // 【修正】 文字数制限を撤廃（空文字のみブロック）
             if(!q) {
                 document.getElementById('search-results-table').style.display='none';
                 document.getElementById('search-top-result').style.display='none';
                 return;
             }
             
-            // 500msのデバウンス（連打によるAPIエラー防止）
             searchTimeout = setTimeout(async () => {
                 const d = await api(`/search?q=${encodeURIComponent(q)}&type=track&limit=15`);
                 if(d && d.tracks && d.tracks.items.length > 0) {
                     const tracks = d.tracks.items;
                     
-                    // トップ結果 (1件目)
                     const top = tracks[0];
                     document.getElementById('search-top-result').style.display='block';
-                    document.getElementById('top-img').src = top.album.images[0].url;
-                    document.getElementById('top-title').innerText = top.name;
-                    document.getElementById('top-artist').innerText = top.artists[0].name;
                     
-                    // クリックで再生
-                    const topCard = document.getElementById('top-result-card');
-                    topCard.onclick = () => playTrack(top.uri);
+                    // 安全なプロパティアクセスを追加
+                    const topImg = top.album && top.album.images && top.album.images.length > 0 ? top.album.images[0].url : 'https://dummyimage.com/100x100/222/fff&text=No+Img';
+                    const topArtist = top.artists && top.artists.length > 0 ? top.artists[0].name : 'Unknown Artist';
+                    
+                    document.getElementById('top-img').src = topImg;
+                    document.getElementById('top-title').innerText = top.name;
+                    document.getElementById('top-artist').innerText = topArtist;
+                    
+                    // 【修正】一番確実に動いていた最初の関数(playUri)に戻しました
+                    document.getElementById('top-result-card').onclick = () => playUri(top.uri);
 
-                    // リスト表示 (2件目以降)
                     document.getElementById('search-results-table').style.display='table';
                     renderTable(tracks.slice(1), 'search-results');
                 }
             }, 500); 
         });
 
-        // --- 【修正・超重要】 再生実行関数 (イベントリスナーから呼ばれる) ---
-        async function playTrack(uri, contextUri = null) {
-            if (!deviceId) {
-                alert('プレイヤーの準備ができていません。しばらく待ってから再度お試しください。');
-                return;
-            }
-
-            let body = {};
+        // --- 【修正・超重要】 再生実行関数を最初のコードの形に完全に戻しました ---
+        async function playUri(uri) {
+            if (!deviceId) return alert('プレイヤーの準備ができていません。');
             
-            if (contextUri) {
-                // プレイリストなど、コンテキスト内で特定の曲を再生する場合（次の曲へ進める）
-                body = {
-                    context_uri: contextUri,
-                    offset: { uri: uri }
-                };
-            } else if (uri.startsWith('spotify:track:')) {
-                // 曲単体として再生する場合
+            let body = {};
+            // 曲単体か、プレイリスト/アルバムかで渡し方を変える（最初のコードと同一）
+            if (uri.includes('spotify:track:')) {
                 body = { uris: [uri] };
             } else {
-                // プレイリスト自体を再生する場合
                 body = { context_uri: uri };
             }
 
-            // 直接 fetch で Spotify の再生エンドポイントを叩く
-            await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {
-                method: 'PUT',
-                body: JSON.stringify(body),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                }
-            }).catch(e => console.error("Play error:", e));
+            await api(`/me/player/play?device_id=${deviceId}`, 'PUT', body);
         }
 
         // --- コントロール ---
@@ -548,11 +527,14 @@
 
         // --- UI更新 ---
         function updateUI(track, isPlaying, pos, dur) {
-            const img = track.album.images[0].url;
+            // エラー防止のため画像が存在するか確認
+            const img = track.album && track.album.images && track.album.images.length > 0 ? track.album.images[0].url : 'https://dummyimage.com/64x64/222222/ffffff.png&text=Art';
+            const artistName = track.artists && track.artists.length > 0 ? track.artists[0].name : 'Unknown Artist';
+
             document.getElementById('bg-blur').src = img;
             document.getElementById('p-art').src = img;
             document.getElementById('p-title').innerText = track.name;
-            document.getElementById('p-artist').innerText = track.artists[0].name;
+            document.getElementById('p-artist').innerText = artistName;
 
             const pb = document.getElementById('play-btn');
             pb.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
@@ -572,41 +554,47 @@
 
         // --- ヘルパー関数 ---
         
-        // 【修正】ホーム画面でトラック(曲)を表示できるように対応
+        // 【修正】playUri を呼ぶように戻しました
         function cardHtml(item, isAlbum=false, isTrack=false) {
             if(!item) return '';
             
             let img = 'https://dummyimage.com/180x180/222222/ffffff.png&text=No+Image';
-            if (isTrack && item.album && item.album.images.length > 0) {
+            if (isTrack && item.album && item.album.images && item.album.images.length > 0) {
                 img = item.album.images[0].url;
             } else if (item.images && item.images.length > 0) {
                 img = item.images[0].url;
             }
 
             const title = item.name.replace(/'/g, "\\'");
+            
             let desc = 'プレイリスト';
-            if (isTrack) desc = item.artists[0].name;
-            else if (isAlbum) desc = item.artists[0].name;
+            if (isTrack && item.artists && item.artists.length > 0) desc = item.artists[0].name;
+            else if (isAlbum && item.artists && item.artists.length > 0) desc = item.artists[0].name;
 
-            return `<div class="card" onclick="playTrack('${item.uri}')">
+            return `<div class="card" onclick="playUri('${item.uri}')">
                 <img src="${img}">
                 <div class="card-title">${title}</div>
                 <div class="card-desc">${desc}</div>
             </div>`;
         }
 
-        function renderTable(tracks, targetId, contextUri = null) {
+        // 【修正】プレイリスト内のエラー要素(削除済みの曲など)で処理が止まらないよう安全策を強化
+        function renderTable(tracks, targetId) {
             const tbody = document.getElementById(targetId);
             tbody.innerHTML = '';
-            tracks.filter(t=>t).forEach((t, i) => {
+            
+            // null や ポッドキャスト(エピソード)を弾く
+            tracks.filter(t => t && t.type === 'track').forEach((t, i) => {
+                // オブジェクトが欠損していてもエラーにならないように設定
                 const img = t.album && t.album.images && t.album.images.length > 0 ? t.album.images[0].url : 'https://dummyimage.com/45x45/222222/ffffff.png&text=Art';
+                const artistName = t.artists && t.artists.length > 0 ? t.artists[0].name : 'Unknown Artist';
+                const albumName = t.album && t.album.name ? t.album.name : 'Unknown Album';
+
                 const tr = document.createElement('tr');
                 tr.className = 'track-row';
                 
-                // 【修正】イベントリスナー方式に変更し、コンテキスト(プレイリスト情報等)も渡す
-                tr.addEventListener('click', () => {
-                    playTrack(t.uri, contextUri);
-                });
+                // 【修正】最初のコードの形式に戻しました
+                tr.onclick = () => playUri(t.uri);
                 
                 tr.innerHTML = `
                     <td>${i+1}</td>
@@ -615,11 +603,11 @@
                             <img src="${img}">
                             <div>
                                 <div style="font-weight:700; font-size:0.95rem; margin-bottom:3px;">${t.name}</div>
-                                <div style="font-size:0.8rem; color:var(--text-sub);">${t.artists[0].name}</div>
+                                <div style="font-size:0.8rem; color:var(--text-sub);">${artistName}</div>
                             </div>
                         </div>
                     </td>
-                    <td style="color:var(--text-sub); font-size:0.85rem;">${t.album.name}</td>
+                    <td style="color:var(--text-sub); font-size:0.85rem;">${albumName}</td>
                     <td style="color:var(--text-sub); font-size:0.85rem;">${fmtTime(t.duration_ms)}</td>
                 `;
                 tbody.appendChild(tr);
