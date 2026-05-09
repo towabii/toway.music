@@ -171,7 +171,8 @@
     </style>
 </head>
 <body>
-    <img id="bg-blur" class="bg-blur" src="https://via.placeholder.com/1000" alt="">
+    <!-- [修正] Placeholder画像URLを変更 -->
+    <img id="bg-blur" class="bg-blur" src="https://dummyimage.com/1000x1000/222222/ffffff.png&text=Toway+Music" alt="">
 
     <!-- ログイン画面 -->
     <div id="login-screen">
@@ -205,11 +206,11 @@
             
             <!-- ホーム -->
             <div id="home-view" class="view-section active">
-                <h1 class="header-title">おすすめ</h1>
-                <div class="sidebar-title" style="margin-left:0;">Spotify おすすめプレイリスト</div>
-                <div class="card-grid" id="featured-playlists"></div>
-                <div class="sidebar-title" style="margin-left:0;">ニューリリース</div>
-                <div class="card-grid" id="new-releases"></div>
+                <h1 class="header-title">ホーム</h1>
+                <!-- [修正] エラー対策のため、ブラウズ系API（おすすめ/新譜）の表示領域をコメントアウトまたは制限表示に変更 -->
+                <div class="sidebar-title" style="margin-left:0; font-size: 0.9rem; color: #ffb86c;">
+                    <i class="fas fa-info-circle"></i> Spotify APIの仕様変更により、現在「おすすめ」「ニューリリース」の取得は制限されています。
+                </div>
             </div>
 
             <!-- 検索 -->
@@ -217,7 +218,7 @@
                 <h1 class="header-title">検索</h1>
                 <div class="search-box">
                     <i class="fas fa-search" style="color: var(--text-sub);"></i>
-                    <input type="text" id="search-input" placeholder="曲名、アーティスト名で検索...">
+                    <input type="text" id="search-input" placeholder="曲名、アーティスト名で検索...（3文字以上）">
                 </div>
 
                 <!-- トップ結果 (完全一致候補) -->
@@ -285,7 +286,8 @@
     <!-- プレイヤー -->
     <footer class="player-bar" id="player-bar" style="display:none;">
         <div class="player-left">
-            <img id="p-art" src="https://via.placeholder.com/64" alt="">
+            <!-- [修正] Placeholder画像URLを変更 -->
+            <img id="p-art" src="https://dummyimage.com/64x64/222222/ffffff.png&text=Art" alt="">
             <div class="player-info">
                 <div class="p-title" id="p-title">準備完了</div>
                 <div class="p-artist" id="p-artist">-</div>
@@ -404,13 +406,14 @@
 
         // --- データ取得 (ホーム・プレイリスト等) ---
         async function loadData() {
-            // おすすめ
+            // [修正] 403エラー対策のため、廃止/制限されたブラウズ系APIのリクエストをコメントアウト
+            /*
             const feat = await api('/browse/featured-playlists?limit=8&country=JP');
             if(feat && feat.playlists) document.getElementById('featured-playlists').innerHTML = feat.playlists.items.map(p => cardHtml(p, false)).join('');
             
-            // ニューリリース
             const newR = await api('/browse/new-releases?limit=8&country=JP');
             if(newR && newR.albums) document.getElementById('new-releases').innerHTML = newR.albums.items.map(a => cardHtml(a, true)).join('');
+            */
             
             // プレイリスト一覧の取得と安全なHTML生成
             const pl = await api('/me/playlists?limit=50');
@@ -449,7 +452,9 @@
         async function loadList(id, name) {
             navTo('list-view');
             document.getElementById('list-title').innerText = name;
-            const d = await api(`/playlists/${id}/tracks`);
+            
+            // [修正] 403エラー対策のため、/tracks を /items に変更
+            const d = await api(`/playlists/${id}/items`);
             if(d && d.items) renderTable(d.items.map(i=>i.track), 'list-results', `spotify:playlist:${id}`);
         }
 
@@ -457,12 +462,16 @@
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
-            const q = e.target.value;
-            if(!q) {
+            const q = e.target.value.trim();
+            
+            // [修正] 400エラー対策：入力が3文字未満の場合はAPIを叩かない
+            if(q.length < 3) {
                 document.getElementById('search-results-table').style.display='none';
                 document.getElementById('search-top-result').style.display='none';
                 return;
             }
+            
+            // [修正] 400エラー対策：400msのデバウンス処理（短時間の連続リクエストを防止）
             searchTimeout = setTimeout(async () => {
                 const d = await api(`/search?q=${encodeURIComponent(q)}&type=track&limit=15`);
                 if(d && d.tracks && d.tracks.items.length > 0) {
@@ -480,7 +489,7 @@
                     document.getElementById('search-results-table').style.display='table';
                     renderTable(tracks.slice(1), 'search-results');
                 }
-            }, 400);
+            }, 400); // 400ミリ秒待機してからリクエスト
         });
 
         // --- 【超重要】再生実行関数 (URIの自動判定) ---
@@ -557,7 +566,8 @@
             const tbody = document.getElementById(targetId);
             tbody.innerHTML = '';
             tracks.filter(t=>t).forEach((t, i) => {
-                const img = t.album && t.album.images && t.album.images.length > 0 ? t.album.images[0].url : 'https://via.placeholder.com/45';
+                // [修正] Placeholder画像URLを変更
+                const img = t.album && t.album.images && t.album.images.length > 0 ? t.album.images[0].url : 'https://dummyimage.com/45x45/222222/ffffff.png&text=Art';
                 const tr = document.createElement('tr');
                 tr.className = 'track-row';
                 tr.onclick = () => playUri(t.uri);
