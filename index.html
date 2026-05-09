@@ -171,7 +171,7 @@
     </style>
 </head>
 <body>
-    <img id="bg-blur" class="bg-blur" src="https://dummyimage.com/1000x1000/222222/ffffff.png&text=Toway+Music" alt="">
+    <img id="bg-blur" class="bg-blur" src="https://dummyimage.com/1000x1000/222/fff&text=Toway+Music" alt="">
 
     <!-- ログイン画面 -->
     <div id="login-screen">
@@ -203,10 +203,9 @@
         <!-- メインビュー -->
         <main class="content-view glass-panel" id="main-scroll">
             
-            <!-- ホーム -->
+            <!-- ホーム (トップトラックに変更) -->
             <div id="home-view" class="view-section active">
                 <h1 class="header-title">ホーム</h1>
-                <!-- ホーム画面：よく聴く曲 -->
                 <div class="sidebar-title" style="margin-left:0;">よく聴く曲 (トップトラック)</div>
                 <div class="card-grid" id="top-tracks-grid"></div>
             </div>
@@ -284,7 +283,7 @@
     <!-- プレイヤー -->
     <footer class="player-bar" id="player-bar" style="display:none;">
         <div class="player-left">
-            <img id="p-art" src="https://dummyimage.com/64x64/222222/ffffff.png&text=Art" alt="">
+            <img id="p-art" src="https://dummyimage.com/64x64/222/fff&text=Art" alt="">
             <div class="player-info">
                 <div class="p-title" id="p-title">準備完了</div>
                 <div class="p-artist" id="p-artist">-</div>
@@ -318,6 +317,8 @@
     <script>
         const CLIENT_ID = '09348ba1442d457cb15867622af1f96a';
         const REDIRECT_URI = 'https://towabii.github.io/toway.music/';
+        
+        // トップトラック取得のため user-top-read を追加
         const SCOPES = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-recently-played user-library-read user-library-modify playlist-read-private playlist-read-collaborative user-top-read';
 
         let token = null, player = null, deviceId = null, currentTrackId = null, progInterval = null;
@@ -403,13 +404,13 @@
 
         // --- データ取得 (ホーム・プレイリスト等) ---
         async function loadData() {
-            // トップトラック(よく聴く曲)の取得
+            // おすすめ・新譜を廃止し、トップトラックを取得
             const topTracks = await api('/me/top/tracks?limit=12&time_range=short_term');
             if(topTracks && topTracks.items) {
                 document.getElementById('top-tracks-grid').innerHTML = topTracks.items.map(t => cardHtml(t, false, true)).join('');
             }
             
-            // プレイリスト一覧の取得
+            // プレイリスト一覧の取得と安全なHTML生成
             const pl = await api('/me/playlists?limit=50');
             const plContainer = document.getElementById('user-playlists');
             plContainer.innerHTML = '';
@@ -434,6 +435,7 @@
             if(d && d.items) {
                 renderTable(d.items.map(i=>i.track), 'history-results');
                 
+                // 履歴の合計時間を計算
                 const totalMs = d.items.reduce((acc, item) => acc + item.track.duration_ms, 0);
                 const totalMin = Math.floor(totalMs / 60000);
                 const h = Math.floor(totalMin / 60);
@@ -442,61 +444,66 @@
             }
         }
 
-        // 【修正】プレイリスト取得のパスを正しい /tracks に戻しました
         async function loadList(id, name) {
             navTo('list-view');
             document.getElementById('list-title').innerText = name;
             
-            const d = await api(`/playlists/${id}/tracks`);
+            // プレイリスト取得を /items に修正
+            const d = await api(`/playlists/${id}/items`);
             if(d && d.items) {
-                // 最初のコードの形に完全に戻しました
-                renderTable(d.items.map(i=>i.track), 'list-results');
+                // track情報がnullのもの(削除された曲やポッドキャスト)を除外して渡す
+                const validTracks = d.items.map(i => i.track).filter(t => t);
+                renderTable(validTracks, 'list-results');
             }
         }
 
-        // --- 検索機能 ---
+        // --- 検索機能 (トップ結果付き) ---
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             const q = e.target.value.trim();
             
+            // 空文字なら結果を隠す
             if(!q) {
                 document.getElementById('search-results-table').style.display='none';
                 document.getElementById('search-top-result').style.display='none';
                 return;
             }
             
+            // 500msのデバウンス（連打防止）
             searchTimeout = setTimeout(async () => {
                 const d = await api(`/search?q=${encodeURIComponent(q)}&type=track&limit=15`);
                 if(d && d.tracks && d.tracks.items.length > 0) {
                     const tracks = d.tracks.items;
                     
+                    // トップ結果 (1件目)
                     const top = tracks[0];
                     document.getElementById('search-top-result').style.display='block';
                     
-                    // 安全なプロパティアクセスを追加
-                    const topImg = top.album && top.album.images && top.album.images.length > 0 ? top.album.images[0].url : 'https://dummyimage.com/100x100/222/fff&text=No+Img';
-                    const topArtist = top.artists && top.artists.length > 0 ? top.artists[0].name : 'Unknown Artist';
+                    // エラー回避
+                    const imgUrl = top.album && top.album.images && top.album.images.length > 0 ? top.album.images[0].url : 'https://dummyimage.com/100x100/222/fff&text=No+Img';
+                    const artistName = top.artists && top.artists.length > 0 ? top.artists[0].name : 'Unknown Artist';
                     
-                    document.getElementById('top-img').src = topImg;
+                    document.getElementById('top-img').src = imgUrl;
                     document.getElementById('top-title').innerText = top.name;
-                    document.getElementById('top-artist').innerText = topArtist;
+                    document.getElementById('top-artist').innerText = artistName;
                     
-                    // 【修正】一番確実に動いていた最初の関数(playUri)に戻しました
+                    // お客様のプレイ関数をそのまま実行
                     document.getElementById('top-result-card').onclick = () => playUri(top.uri);
 
+                    // リスト表示 (2件目以降)
                     document.getElementById('search-results-table').style.display='table';
                     renderTable(tracks.slice(1), 'search-results');
                 }
-            }, 500); 
+            }, 500);
         });
 
-        // --- 【修正・超重要】 再生実行関数を最初のコードの形に完全に戻しました ---
+        // --- 【超重要】再生実行関数 (お客様のコードをそのまま使用！) ---
         async function playUri(uri) {
             if (!deviceId) return alert('プレイヤーの準備ができていません。');
             
+            // プレイリストやアルバムと、個別の曲でリクエストの形が違うので判定
             let body = {};
-            // 曲単体か、プレイリスト/アルバムかで渡し方を変える（最初のコードと同一）
             if (uri.includes('spotify:track:')) {
                 body = { uris: [uri] };
             } else {
@@ -527,8 +534,8 @@
 
         // --- UI更新 ---
         function updateUI(track, isPlaying, pos, dur) {
-            // エラー防止のため画像が存在するか確認
-            const img = track.album && track.album.images && track.album.images.length > 0 ? track.album.images[0].url : 'https://dummyimage.com/64x64/222222/ffffff.png&text=Art';
+            // エラー回避
+            const img = track.album && track.album.images && track.album.images.length > 0 ? track.album.images[0].url : 'https://dummyimage.com/64x64/222/fff&text=Art';
             const artistName = track.artists && track.artists.length > 0 ? track.artists[0].name : 'Unknown Artist';
 
             document.getElementById('bg-blur').src = img;
@@ -553,12 +560,11 @@
         }
 
         // --- ヘルパー関数 ---
-        
-        // 【修正】playUri を呼ぶように戻しました
+        // トップトラック(曲)を描画できるように拡張
         function cardHtml(item, isAlbum=false, isTrack=false) {
             if(!item) return '';
             
-            let img = 'https://dummyimage.com/180x180/222222/ffffff.png&text=No+Image';
+            let img = 'https://dummyimage.com/180x180/222/fff&text=No+Img';
             if (isTrack && item.album && item.album.images && item.album.images.length > 0) {
                 img = item.album.images[0].url;
             } else if (item.images && item.images.length > 0) {
@@ -566,7 +572,6 @@
             }
 
             const title = item.name.replace(/'/g, "\\'");
-            
             let desc = 'プレイリスト';
             if (isTrack && item.artists && item.artists.length > 0) desc = item.artists[0].name;
             else if (isAlbum && item.artists && item.artists.length > 0) desc = item.artists[0].name;
@@ -578,22 +583,19 @@
             </div>`;
         }
 
-        // 【修正】プレイリスト内のエラー要素(削除済みの曲など)で処理が止まらないよう安全策を強化
         function renderTable(tracks, targetId) {
             const tbody = document.getElementById(targetId);
             tbody.innerHTML = '';
-            
-            // null や ポッドキャスト(エピソード)を弾く
-            tracks.filter(t => t && t.type === 'track').forEach((t, i) => {
-                // オブジェクトが欠損していてもエラーにならないように設定
-                const img = t.album && t.album.images && t.album.images.length > 0 ? t.album.images[0].url : 'https://dummyimage.com/45x45/222222/ffffff.png&text=Art';
+            tracks.forEach((t, i) => {
+                // エラー回避
+                const img = t.album && t.album.images && t.album.images.length > 0 ? t.album.images[0].url : 'https://dummyimage.com/45x45/222/fff&text=Art';
                 const artistName = t.artists && t.artists.length > 0 ? t.artists[0].name : 'Unknown Artist';
                 const albumName = t.album && t.album.name ? t.album.name : 'Unknown Album';
 
                 const tr = document.createElement('tr');
                 tr.className = 'track-row';
                 
-                // 【修正】最初のコードの形式に戻しました
+                // お客様のプレイ関数を実行
                 tr.onclick = () => playUri(t.uri);
                 
                 tr.innerHTML = `
