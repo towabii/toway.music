@@ -171,7 +171,7 @@
     </style>
 </head>
 <body>
-    <img id="bg-blur" class="bg-blur" src="https://dummyimage.com/1000x1000/222/fff&text=Toway+Music" alt="">
+    <img id="bg-blur" class="bg-blur" src="https://via.placeholder.com/1000" alt="">
 
     <!-- ログイン画面 -->
     <div id="login-screen">
@@ -203,11 +203,13 @@
         <!-- メインビュー -->
         <main class="content-view glass-panel" id="main-scroll">
             
-            <!-- ホーム (トップトラックに変更) -->
+            <!-- ホーム -->
             <div id="home-view" class="view-section active">
-                <h1 class="header-title">ホーム</h1>
-                <div class="sidebar-title" style="margin-left:0;">よく聴く曲 (トップトラック)</div>
-                <div class="card-grid" id="top-tracks-grid"></div>
+                <h1 class="header-title">おすすめ</h1>
+                <div class="sidebar-title" style="margin-left:0;">Spotify おすすめプレイリスト</div>
+                <div class="card-grid" id="featured-playlists"></div>
+                <div class="sidebar-title" style="margin-left:0;">ニューリリース</div>
+                <div class="card-grid" id="new-releases"></div>
             </div>
 
             <!-- 検索 -->
@@ -283,7 +285,7 @@
     <!-- プレイヤー -->
     <footer class="player-bar" id="player-bar" style="display:none;">
         <div class="player-left">
-            <img id="p-art" src="https://dummyimage.com/64x64/222/fff&text=Art" alt="">
+            <img id="p-art" src="https://via.placeholder.com/64" alt="">
             <div class="player-info">
                 <div class="p-title" id="p-title">準備完了</div>
                 <div class="p-artist" id="p-artist">-</div>
@@ -317,9 +319,7 @@
     <script>
         const CLIENT_ID = '09348ba1442d457cb15867622af1f96a';
         const REDIRECT_URI = 'https://towabii.github.io/toway.music/';
-        
-        // トップトラック取得のため user-top-read を追加
-        const SCOPES = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-recently-played user-library-read user-library-modify playlist-read-private playlist-read-collaborative user-top-read';
+        const SCOPES = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-recently-played user-library-read user-library-modify playlist-read-private playlist-read-collaborative';
 
         let token = null, player = null, deviceId = null, currentTrackId = null, progInterval = null;
         let isPlayingGlobal = false;
@@ -404,11 +404,13 @@
 
         // --- データ取得 (ホーム・プレイリスト等) ---
         async function loadData() {
-            // おすすめ・新譜を廃止し、トップトラックを取得
-            const topTracks = await api('/me/top/tracks?limit=12&time_range=short_term');
-            if(topTracks && topTracks.items) {
-                document.getElementById('top-tracks-grid').innerHTML = topTracks.items.map(t => cardHtml(t, false, true)).join('');
-            }
+            // おすすめ
+            const feat = await api('/browse/featured-playlists?limit=8&country=JP');
+            if(feat && feat.playlists) document.getElementById('featured-playlists').innerHTML = feat.playlists.items.map(p => cardHtml(p, false)).join('');
+            
+            // ニューリリース
+            const newR = await api('/browse/new-releases?limit=8&country=JP');
+            if(newR && newR.albums) document.getElementById('new-releases').innerHTML = newR.albums.items.map(a => cardHtml(a, true)).join('');
             
             // プレイリスト一覧の取得と安全なHTML生成
             const pl = await api('/me/playlists?limit=50');
@@ -447,30 +449,20 @@
         async function loadList(id, name) {
             navTo('list-view');
             document.getElementById('list-title').innerText = name;
-            
-            // プレイリスト取得を /items に修正
-            const d = await api(`/playlists/${id}/items`);
-            if(d && d.items) {
-                // track情報がnullのもの(削除された曲やポッドキャスト)を除外して渡す
-                const validTracks = d.items.map(i => i.track).filter(t => t);
-                renderTable(validTracks, 'list-results');
-            }
+            const d = await api(`/playlists/${id}/tracks`);
+            if(d && d.items) renderTable(d.items.map(i=>i.track), 'list-results', `spotify:playlist:${id}`);
         }
 
         // --- 検索機能 (トップ結果付き) ---
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
-            const q = e.target.value.trim();
-            
-            // 空文字なら結果を隠す
+            const q = e.target.value;
             if(!q) {
                 document.getElementById('search-results-table').style.display='none';
                 document.getElementById('search-top-result').style.display='none';
                 return;
             }
-            
-            // 500msのデバウンス（連打防止）
             searchTimeout = setTimeout(async () => {
                 const d = await api(`/search?q=${encodeURIComponent(q)}&type=track&limit=15`);
                 if(d && d.tracks && d.tracks.items.length > 0) {
@@ -479,26 +471,19 @@
                     // トップ結果 (1件目)
                     const top = tracks[0];
                     document.getElementById('search-top-result').style.display='block';
-                    
-                    // エラー回避
-                    const imgUrl = top.album && top.album.images && top.album.images.length > 0 ? top.album.images[0].url : 'https://dummyimage.com/100x100/222/fff&text=No+Img';
-                    const artistName = top.artists && top.artists.length > 0 ? top.artists[0].name : 'Unknown Artist';
-                    
-                    document.getElementById('top-img').src = imgUrl;
+                    document.getElementById('top-img').src = top.album.images[0].url;
                     document.getElementById('top-title').innerText = top.name;
-                    document.getElementById('top-artist').innerText = artistName;
-                    
-                    // お客様のプレイ関数をそのまま実行
+                    document.getElementById('top-artist').innerText = top.artists[0].name;
                     document.getElementById('top-result-card').onclick = () => playUri(top.uri);
 
                     // リスト表示 (2件目以降)
                     document.getElementById('search-results-table').style.display='table';
                     renderTable(tracks.slice(1), 'search-results');
                 }
-            }, 500);
+            }, 400);
         });
 
-        // --- 【超重要】再生実行関数 (お客様のコードをそのまま使用！) ---
+        // --- 【超重要】再生実行関数 (URIの自動判定) ---
         async function playUri(uri) {
             if (!deviceId) return alert('プレイヤーの準備ができていません。');
             
@@ -534,14 +519,11 @@
 
         // --- UI更新 ---
         function updateUI(track, isPlaying, pos, dur) {
-            // エラー回避
-            const img = track.album && track.album.images && track.album.images.length > 0 ? track.album.images[0].url : 'https://dummyimage.com/64x64/222/fff&text=Art';
-            const artistName = track.artists && track.artists.length > 0 ? track.artists[0].name : 'Unknown Artist';
-
+            const img = track.album.images[0].url;
             document.getElementById('bg-blur').src = img;
             document.getElementById('p-art').src = img;
             document.getElementById('p-title').innerText = track.name;
-            document.getElementById('p-artist').innerText = artistName;
+            document.getElementById('p-artist').innerText = track.artists[0].name;
 
             const pb = document.getElementById('play-btn');
             pb.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
@@ -560,44 +542,25 @@
         }
 
         // --- ヘルパー関数 ---
-        // トップトラック(曲)を描画できるように拡張
-        function cardHtml(item, isAlbum=false, isTrack=false) {
-            if(!item) return '';
-            
-            let img = 'https://dummyimage.com/180x180/222/fff&text=No+Img';
-            if (isTrack && item.album && item.album.images && item.album.images.length > 0) {
-                img = item.album.images[0].url;
-            } else if (item.images && item.images.length > 0) {
-                img = item.images[0].url;
-            }
-
+        function cardHtml(item, isAlbum=false) {
+            if(!item || !item.images || item.images.length===0) return '';
+            const img = item.images[0].url;
             const title = item.name.replace(/'/g, "\\'");
-            let desc = 'プレイリスト';
-            if (isTrack && item.artists && item.artists.length > 0) desc = item.artists[0].name;
-            else if (isAlbum && item.artists && item.artists.length > 0) desc = item.artists[0].name;
-
             return `<div class="card" onclick="playUri('${item.uri}')">
                 <img src="${img}">
                 <div class="card-title">${title}</div>
-                <div class="card-desc">${desc}</div>
+                <div class="card-desc">${isAlbum ? item.artists[0].name : 'プレイリスト'}</div>
             </div>`;
         }
 
         function renderTable(tracks, targetId) {
             const tbody = document.getElementById(targetId);
             tbody.innerHTML = '';
-            tracks.forEach((t, i) => {
-                // エラー回避
-                const img = t.album && t.album.images && t.album.images.length > 0 ? t.album.images[0].url : 'https://dummyimage.com/45x45/222/fff&text=Art';
-                const artistName = t.artists && t.artists.length > 0 ? t.artists[0].name : 'Unknown Artist';
-                const albumName = t.album && t.album.name ? t.album.name : 'Unknown Album';
-
+            tracks.filter(t=>t).forEach((t, i) => {
+                const img = t.album && t.album.images && t.album.images.length > 0 ? t.album.images[0].url : 'https://via.placeholder.com/45';
                 const tr = document.createElement('tr');
                 tr.className = 'track-row';
-                
-                // お客様のプレイ関数を実行
                 tr.onclick = () => playUri(t.uri);
-                
                 tr.innerHTML = `
                     <td>${i+1}</td>
                     <td>
@@ -605,11 +568,11 @@
                             <img src="${img}">
                             <div>
                                 <div style="font-weight:700; font-size:0.95rem; margin-bottom:3px;">${t.name}</div>
-                                <div style="font-size:0.8rem; color:var(--text-sub);">${artistName}</div>
+                                <div style="font-size:0.8rem; color:var(--text-sub);">${t.artists[0].name}</div>
                             </div>
                         </div>
                     </td>
-                    <td style="color:var(--text-sub); font-size:0.85rem;">${albumName}</td>
+                    <td style="color:var(--text-sub); font-size:0.85rem;">${t.album.name}</td>
                     <td style="color:var(--text-sub); font-size:0.85rem;">${fmtTime(t.duration_ms)}</td>
                 `;
                 tbody.appendChild(tr);
