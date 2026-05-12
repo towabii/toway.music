@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toway Music - Modern Web Player</title>
+    <!-- 404エラー対策: ダミーのファビコンを設定 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎵</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -205,7 +207,6 @@
     </div>
 
     <div class="main-container" id="app-container" style="display:none;">
-        <!-- サイドバー（プレイリストを削除し、お気に入りのみに） -->
         <aside class="sidebar glass-panel">
             <div>
                 <ul class="nav-menu">
@@ -218,7 +219,6 @@
             <div class="export-btn" id="export-btn"><i class="fas fa-file-export"></i> 認証情報をエクスポート</div>
         </aside>
 
-        <!-- メインビュー -->
         <main class="content-view glass-panel" id="main-scroll">
             
             <!-- ホーム (Now Playing) -->
@@ -236,19 +236,16 @@
                         <p id="np-main-artist">-</p>
                     </div>
                     <div class="np-right">
-                        <!-- Wikipedia情報 -->
                         <div class="np-card">
                             <h3>アーティストについて</h3>
                             <img id="np-artist-img" class="np-artist-img" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
                             <p class="np-artist-desc" id="np-artist-desc">アーティスト情報を取得中...</p>
                         </div>
-                        <!-- クレジット/情報 -->
                         <div class="np-card">
                             <h3>楽曲情報・クレジット</h3>
                             <div class="np-info-row"><span>アルバム</span><span id="np-album-name" style="font-weight:500;">-</span></div>
                             <div class="np-info-row"><span>アーティスト</span><span id="np-track-artist" style="font-weight:500;">-</span></div>
                         </div>
-                        <!-- 次に再生される曲 -->
                         <div class="np-card">
                             <h3>次に再生される曲</h3>
                             <div class="next-track-item">
@@ -317,7 +314,6 @@
         </main>
     </div>
 
-    <!-- プレイヤー -->
     <footer class="player-bar" id="player-bar" style="display:none;">
         <div class="player-left">
             <img id="p-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">
@@ -361,7 +357,6 @@
         let currentNpTrackId = null;
         const placeholderImg = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
-        // --- ローカル再生時間 ---
         let localTotalSec = parseInt(localStorage.getItem('toway_local_sec') || '0');
         setInterval(() => {
             if (isPlayingGlobal) {
@@ -373,7 +368,6 @@
             }
         }, 1000);
 
-        // --- トークン管理 ---
         async function getValidToken() {
             let tokens = JSON.parse(localStorage.getItem('spotify_tokens') || 'null');
             if (!tokens || !tokens.access_token) return null;
@@ -395,12 +389,10 @@
             return tokens.access_token;
         }
 
-        // --- API 通信 (エラー解析強化) ---
         async function api(endpoint, method = 'GET', body = null) {
             try {
                 const token = await getValidToken();
                 if (!token) throw new Error('No token');
-
                 const options = { method, headers: { 'Authorization': `Bearer ${token}` } };
                 if (body) { options.headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(body); }
                 const res = await fetch(`https://api.spotify.com/v1${endpoint}`, options);
@@ -414,7 +406,6 @@
             } catch (e) { return null; }
         }
 
-        // --- 認証 ---
         function genStr(len) {
             const p = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             return Array.from({length: len}, () => p.charAt(Math.floor(Math.random() * p.length))).join('');
@@ -471,7 +462,6 @@
             document.getElementById('player-bar').style.display = 'flex';
         }
 
-        // --- SDK ---
         window.onSpotifyWebPlaybackSDKReady = async () => {
             if (!(await getValidToken())) return;
             player = new Spotify.Player({ name: 'Toway Web Player', getOAuthToken: async cb => { cb(await getValidToken()); }, volume: 0.5 });
@@ -491,7 +481,6 @@
             player.connect();
         };
 
-        // --- ホーム画面更新 (Wikipedia連動) ---
         async function fetchWiki(artistName) {
             try {
                 const res = await fetch(`https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`);
@@ -506,7 +495,7 @@
         async function updateHomeView(track, nextTracks) {
             document.getElementById('np-empty').style.display = 'none';
 
-            if(track.id === currentNpTrackId) return; // 同じ曲なら更新不要
+            if(track.id === currentNpTrackId) return; 
             currentNpTrackId = track.id;
 
             const artUrl = track.album.images[0]?.url || placeholderImg;
@@ -517,21 +506,18 @@
             document.getElementById('np-album-name').innerText = track.album.name;
             document.getElementById('np-track-artist').innerText = track.artists[0].name;
 
-            // Wikipediaから概要を取得
             document.getElementById('np-artist-desc').innerText = "情報を読み込んでいます...";
             const wikiText = await fetchWiki(track.artists[0].name);
             document.getElementById('np-artist-desc').innerText = wikiText;
 
-            // Spotify APIからアーティスト画像を取得
             const artistId = track.artists[0].uri.split(':')[2];
             const artistData = await api(`/artists/${artistId}`);
-            if(artistData && artistData.images.length > 0) {
+            if(artistData && artistData.images && artistData.images.length > 0) {
                 document.getElementById('np-artist-img').src = artistData.images[0].url;
             } else {
-                document.getElementById('np-artist-img').src = artUrl; // 代替
+                document.getElementById('np-artist-img').src = artUrl;
             }
 
-            // 次の曲
             if(nextTracks && nextTracks.length > 0) {
                 const nt = nextTracks[0];
                 document.getElementById('np-next-img').src = nt.album.images[0]?.url || placeholderImg;
@@ -544,23 +530,26 @@
             }
         }
 
-        // --- 検索機能 (確実な動作保証) ---
+        /* ━━━ 修正点：limit指定を完全に削除してエラーを回避 ━━━ */
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             const q = e.target.value.trim();
+            
+            // 検索欄が空になったら結果をクリア
             if(!q) {
                 document.getElementById('search-results-table').style.display='none';
                 document.getElementById('search-top-result').style.display='none';
                 document.getElementById('search-tracks-title').style.display='none';
                 return;
             }
+            
             searchTimeout = setTimeout(async () => {
-                // 安全なURL構築
-                const params = new URLSearchParams({ q: q, type: 'track', limit: 20 });
-                const d = await api(`/search?${params.toString()}`);
+                // limitパラメータを完全に削除。Spotifyのデフォルト件数（20件）を利用
+                const query = encodeURIComponent(q);
+                const d = await api(`/search?q=${query}&type=track`);
                 
-                if(d && d.tracks && d.tracks.items.length > 0) {
+                if(d && d.tracks && d.tracks.items && d.tracks.items.length > 0) {
                     const tracks = d.tracks.items;
                     
                     const top = tracks[0];
@@ -573,11 +562,15 @@
                     document.getElementById('search-tracks-title').style.display='block';
                     document.getElementById('search-results-table').style.display='table';
                     renderTable(tracks.slice(1), 'search-results');
+                } else {
+                    // 該当なしの場合クリア
+                    document.getElementById('search-results-table').style.display='none';
+                    document.getElementById('search-top-result').style.display='none';
+                    document.getElementById('search-tracks-title').style.display='none';
                 }
             }, 500);
         });
 
-        // --- リスト取得 ---
         async function loadLibrary() {
             const d = await api('/me/tracks?limit=50');
             if(d && d.items) renderTable(d.items.map(i=>i.track), 'library-results');
@@ -597,7 +590,6 @@
             await api(`/me/player/play?device_id=${deviceId}`, 'PUT', body);
         }
 
-        // --- プレイヤー操作 ---
         document.getElementById('play-btn').onclick = () => player && player.togglePlay();
         document.getElementById('next-btn').onclick = () => player && player.nextTrack();
         document.getElementById('prev-btn').onclick = () => player && player.previousTrack();
