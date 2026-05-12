@@ -58,11 +58,14 @@
             font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 20px; width: 100%;
         }
         .btn-primary:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(29, 185, 84, 0.4); }
+        .btn-primary:active { transform: scale(0.95); } /* 視覚的フィードバック */
+        
         .btn-secondary {
             background: transparent; color: var(--text-sub); border: 1px solid var(--text-sub); width: 100%;
             padding: 12px 20px; border-radius: 30px; font-size: 0.95rem; cursor: pointer; transition: 0.3s; margin-top: 15px; font-weight: 500;
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.1); color: white; border-color: white; }
+        .btn-secondary:active { transform: scale(0.95); }
 
         .main-container {
             display: flex; flex: 1; height: calc(100vh - var(--player-height) - 40px);
@@ -82,6 +85,7 @@
             display: flex; align-items: center; gap: 15px; color: var(--text-sub); font-weight: 500; transition: 0.3s;
         }
         .nav-menu li:hover, .nav-menu li.active { background: var(--glass-hover); color: var(--text-main); transform: translateX(5px); }
+        .nav-menu li:active { transform: scale(0.95); }
         .nav-menu i { font-size: 1.2rem; width: 20px; text-align: center; }
 
         .export-btn {
@@ -89,6 +93,7 @@
             border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; font-size: 0.85rem; font-weight: 500; transition: 0.3s; margin-top:auto;
         }
         .export-btn:hover { background: var(--glass-hover); color: white; }
+        .export-btn:active { transform: scale(0.95); }
 
         /* 中央ビュー */
         .content-view { flex: 1; overflow-y: auto; padding: 30px; position: relative; scroll-behavior: smooth; }
@@ -96,7 +101,18 @@
         .view-section.active { display: block; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header-title { font-size: 2.5rem; font-weight: 700; margin: 0 0 30px 0;}
+        .header-title { font-size: 2.5rem; font-weight: 700; margin: 0 0 30px 0; display: flex; align-items: center; justify-content: space-between;}
+
+        /* ライブラリのアクションボタン */
+        .lib-actions { display: flex; gap: 15px; }
+        .lib-btn {
+            background: rgba(255,255,255,0.1); border: none; color: white; padding: 10px 20px;
+            border-radius: 20px; cursor: pointer; font-family: 'Outfit', sans-serif; font-weight: 600; transition: 0.2s;
+            display: flex; align-items: center; gap: 8px; font-size: 0.9rem;
+        }
+        .lib-btn.play { background: var(--brand-grad); color: black; }
+        .lib-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .lib-btn:active { transform: scale(0.95); }
 
         /* ★ ホーム (Now Playing) ビューのスタイル ★ */
         .now-playing-container { display: flex; gap: 40px; height: calc(100% - 20px); position: relative; }
@@ -111,8 +127,13 @@
         .np-right { flex: 1.2; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; padding-right: 10px; }
         .np-card {
             background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px;
+            transition: 0.3s ease;
         }
         .np-card h3 { margin: 0 0 15px 0; font-size: 1.1rem; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); }
+        
+        /* 歌詞カード用スタイル */
+        .lyrics-text { font-size: 1.1rem; line-height: 2; white-space: pre-wrap; color: var(--text-main); font-weight: 500; }
+        
         .np-artist-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; background-color: #333; }
         .np-artist-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.6; }
         
@@ -144,13 +165,24 @@
         .top-result img { width: 100px; height: 100px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); margin-bottom: 15px; object-fit: cover; }
         .top-result-title { font-size: 2rem; font-weight: 700; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+        /* トラックリスト・キュー追加ボタン */
         .track-list { width: 100%; border-collapse: collapse; text-align: left; }
         .track-list th { color: var(--text-sub); font-size: 0.75rem; font-weight: 500; padding: 15px 10px; border-bottom: 1px solid var(--glass-border); text-transform: uppercase; }
-        .track-list td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); vertical-align: middle; transition: 0.2s;}
+        .track-list td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); vertical-align: middle; transition: 0.2s; position: relative;}
         .track-row { cursor: pointer; border-radius: 12px; }
         .track-row:hover td { background: var(--glass-hover); }
         .track-title-cell { display: flex; align-items: center; gap: 15px; }
         .track-title-cell img { width: 45px; height: 45px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); object-fit: cover;}
+
+        .queue-btn {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%) scale(0.9);
+            background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--glass-border);
+            border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; cursor: pointer;
+            opacity: 0; transition: 0.2s; display: flex; align-items: center; gap: 5px;
+        }
+        .track-row:hover .queue-btn { opacity: 1; transform: translateY(-50%) scale(1); }
+        .queue-btn:hover { background: var(--brand-grad); color: black; border-color: transparent;}
+        .queue-btn:active { transform: translateY(-50%) scale(0.85); }
 
         /* 統計パネル */
         .stats-container { display: flex; gap: 20px; margin-bottom: 40px; }
@@ -159,7 +191,7 @@
         .stat-info h4 { margin: 0 0 5px 0; font-size: 0.85rem; color: var(--text-sub); font-weight: 500; }
         .stat-info p { margin: 0; font-size: 1.8rem; font-weight: 700; }
 
-        /* プレイヤー */
+        /* ★ プレイヤー (操作UI強化・ドラッグ対応) ★ */
         .player-bar {
             height: var(--player-height); margin: 0 20px 20px 20px; padding: 0 30px; display: flex; justify-content: space-between; align-items: center;
             background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
@@ -172,26 +204,43 @@
         .p-artist { font-size: 0.85rem; color: var(--text-sub); }
 
         .player-center { display: flex; flex-direction: column; align-items: center; width: 40%; }
-        .p-controls { display: flex; align-items: center; gap: 25px; margin-bottom: 10px; }
-        .ctrl-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
-        .ctrl-btn:hover { color: var(--text-main); }
+        .p-controls { display: flex; align-items: center; gap: 25px; margin-bottom: 8px; }
+        .ctrl-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: 0.2s; outline: none; }
+        .ctrl-btn:hover { color: var(--text-main); transform: scale(1.1); }
+        .ctrl-btn:active { transform: scale(0.9); color: #1DB954; }
         .ctrl-btn.active { color: #1DB954; }
+        
         .play-btn {
             background: var(--text-main); color: #000; width: 48px; height: 48px; border-radius: 50%; border: none;
-            display: flex; justify-content: center; align-items: center; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding-left: 4px;
+            display: flex; justify-content: center; align-items: center; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding-left: 4px; outline: none;
         }
         .play-btn.playing { padding-left: 0; }
         .play-btn:hover { transform: scale(1.08); background: var(--brand-grad); color: white; }
+        .play-btn:active { transform: scale(0.95); }
 
-        .progress-wrapper { display: flex; align-items: center; width: 100%; max-width: 500px; gap: 15px; font-size: 0.75rem; color: var(--text-sub); font-weight: 500; }
-        .progress-bar { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; cursor: pointer; position: relative; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--brand-grad); width: 0%; border-radius: 3px; transition: width 0.1s linear; }
+        .progress-wrapper { display: flex; align-items: center; width: 100%; max-width: 500px; gap: 10px; font-size: 0.75rem; color: var(--text-sub); font-weight: 500; }
+        
+        /* input type="range"のカスタムスタイル (ドラッグ対応) */
+        input[type=range] {
+            -webkit-appearance: none; width: 100%; background: transparent; margin: 0; padding: 0; cursor: pointer; outline: none;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%;
+            background: #fff; margin-top: -3px; box-shadow: 0 0 5px rgba(0,0,0,0.5);
+            opacity: 0; transition: 0.2s;
+        }
+        input[type=range]:hover::-webkit-slider-thumb, input[type=range]:active::-webkit-slider-thumb { opacity: 1; transform: scale(1.2); }
 
-        .player-right { display: flex; align-items: center; justify-content: flex-end; width: 30%; gap: 20px; }
-        .vol-wrapper { display: flex; align-items: center; gap: 12px; width: 130px; }
-        .vol-bar { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; cursor: pointer; position: relative; overflow: hidden;}
-        .vol-fill { height: 100%; background: var(--text-main); width: 50%; border-radius: 3px; pointer-events: none;}
-        .vol-wrapper:hover .vol-fill { background: var(--brand-grad); }
+        .player-right { display: flex; align-items: center; justify-content: flex-end; width: 30%; gap: 15px; }
+        .lyrics-toggle-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: 0.2s; outline: none;}
+        .lyrics-toggle-btn:hover { color: white; transform: scale(1.1); }
+        .lyrics-toggle-btn:active { transform: scale(0.9); }
+        .lyrics-toggle-btn.active { color: #1DB954; }
+
+        .vol-wrapper { display: flex; align-items: center; gap: 10px; width: 130px; }
     </style>
 </head>
 <body>
@@ -236,6 +285,12 @@
                         <p id="np-main-artist">-</p>
                     </div>
                     <div class="np-right">
+                        <!-- ★ 歌詞カード (デフォルト非表示) -->
+                        <div class="np-card" id="lyrics-card" style="display:none;">
+                            <h3><i class="fas fa-microphone-alt" style="margin-right:8px;"></i>歌詞</h3>
+                            <div class="lyrics-text" id="lyrics-content">歌詞を読み込み中...</div>
+                        </div>
+
                         <div class="np-card">
                             <h3>アーティストについて</h3>
                             <img id="np-artist-img" class="np-artist-img" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
@@ -286,7 +341,14 @@
 
             <!-- ライブラリ -->
             <div id="library-view" class="view-section">
-                <h1 class="header-title">お気に入りの曲</h1>
+                <div class="header-title">
+                    お気に入りの曲
+                    <!-- ★ 順序再生 / シャッフル再生ボタン -->
+                    <div class="lib-actions">
+                        <button class="lib-btn play" id="lib-play-btn"><i class="fas fa-play"></i> 順序再生</button>
+                        <button class="lib-btn" id="lib-shuffle-btn"><i class="fas fa-random"></i> シャッフル再生</button>
+                    </div>
+                </div>
                 <table class="track-list">
                     <thead><tr><th>#</th><th>タイトル</th><th>アルバム</th><th>時間</th></tr></thead>
                     <tbody id="library-results"></tbody>
@@ -314,6 +376,7 @@
         </main>
     </div>
 
+    <!-- プレイヤーバー -->
     <footer class="player-bar" id="player-bar" style="display:none;">
         <div class="player-left">
             <img id="p-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">
@@ -333,15 +396,19 @@
             </div>
             <div class="progress-wrapper">
                 <span id="time-cur">0:00</span>
-                <div class="progress-bar" id="prog-bar"><div class="progress-fill" id="prog-fill"></div></div>
+                <!-- ★ ドラッグ対応シークバー -->
+                <input type="range" id="prog-range" min="0" max="100" value="0" step="0.1" style="background: linear-gradient(to right, #1DB954 0%, rgba(255,255,255,0.1) 0%);">
                 <span id="time-tot">0:00</span>
             </div>
         </div>
 
         <div class="player-right">
+            <!-- ★ 歌詞トグルボタン -->
+            <button class="lyrics-toggle-btn" id="lyrics-btn" title="歌詞を表示"><i class="fas fa-microphone-alt"></i></button>
             <div class="vol-wrapper">
                 <i class="fas fa-volume-up" style="color:var(--text-sub);"></i>
-                <div class="vol-bar" id="vol-bar"><div class="vol-fill" id="vol-fill"></div></div>
+                <!-- ★ ドラッグ対応ボリュームバー -->
+                <input type="range" id="vol-range" min="0" max="1" value="0.5" step="0.01" style="background: linear-gradient(to right, #fff 50%, rgba(255,255,255,0.1) 50%);">
             </div>
         </div>
     </footer>
@@ -355,6 +422,8 @@
         let player = null, deviceId = null, progInterval = null;
         let isPlayingGlobal = false;
         let currentNpTrackId = null;
+        let isDraggingProgress = false; // シークバーのドラッグ判定
+        let currentLibraryUris = [];    // お気に入り再生用
         const placeholderImg = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
         let localTotalSec = parseInt(localStorage.getItem('toway_local_sec') || '0');
@@ -398,8 +467,7 @@
                 const res = await fetch(`https://api.spotify.com/v1${endpoint}`, options);
                 if (res.status === 204) return null;
                 if (!res.ok) {
-                    const err = await res.text();
-                    console.error(`API Error [${res.status}]:`, err);
+                    console.error(`API Error [${res.status}]`);
                     throw new Error(res.status);
                 }
                 return await res.json();
@@ -481,6 +549,7 @@
             player.connect();
         };
 
+        // --- Wikipedia 連携 ---
         async function fetchWiki(artistName) {
             try {
                 const res = await fetch(`https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`);
@@ -491,6 +560,33 @@
             } catch(e) {}
             return "（Wikipediaから詳細情報を取得できませんでした）";
         }
+
+        // --- ★ LRCLIB 歌詞取得 ---
+        async function fetchLyrics(artist, title) {
+            try {
+                const res = await fetch(`https://lrclib.net/api/search?track_name=${encodeURIComponent(title)}&artist_name=${encodeURIComponent(artist)}`);
+                if(res.ok) {
+                    const data = await res.json();
+                    if(data && data.length > 0 && data[0].plainLyrics) return data[0].plainLyrics;
+                }
+            } catch(e) {}
+            return "この曲の歌詞は見つかりませんでした。\n(インストゥルメンタル曲、または未登録の可能性があります)";
+        }
+
+        // 歌詞の表示/非表示トグル
+        document.getElementById('lyrics-btn').onclick = function() {
+            const card = document.getElementById('lyrics-card');
+            const isActive = card.style.display !== 'none';
+            if (isActive) {
+                card.style.display = 'none';
+                this.classList.remove('active');
+            } else {
+                card.style.display = 'block';
+                this.classList.add('active');
+                // もしホームビューにいなければホームに移動する
+                document.querySelector('.nav-item[data-target="home-view"]').click();
+            }
+        };
 
         async function updateHomeView(track, nextTracks) {
             document.getElementById('np-empty').style.display = 'none';
@@ -505,6 +601,11 @@
 
             document.getElementById('np-album-name').innerText = track.album.name;
             document.getElementById('np-track-artist').innerText = track.artists[0].name;
+
+            // 歌詞の取得
+            document.getElementById('lyrics-content').innerText = "歌詞を検索中...";
+            const lyrics = await fetchLyrics(track.artists[0].name, track.name);
+            document.getElementById('lyrics-content').innerText = lyrics;
 
             document.getElementById('np-artist-desc').innerText = "情報を読み込んでいます...";
             const wikiText = await fetchWiki(track.artists[0].name);
@@ -530,28 +631,23 @@
             }
         }
 
-        /* ━━━ 修正点：limit指定を完全に削除してエラーを回避 ━━━ */
+        // --- 検索機能 ---
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             const q = e.target.value.trim();
-            
-            // 検索欄が空になったら結果をクリア
             if(!q) {
                 document.getElementById('search-results-table').style.display='none';
                 document.getElementById('search-top-result').style.display='none';
                 document.getElementById('search-tracks-title').style.display='none';
                 return;
             }
-            
             searchTimeout = setTimeout(async () => {
-                // limitパラメータを完全に削除。Spotifyのデフォルト件数（20件）を利用
                 const query = encodeURIComponent(q);
                 const d = await api(`/search?q=${query}&type=track`);
                 
                 if(d && d.tracks && d.tracks.items && d.tracks.items.length > 0) {
                     const tracks = d.tracks.items;
-                    
                     const top = tracks[0];
                     document.getElementById('search-top-result').style.display='block';
                     document.getElementById('top-img').src = top.album.images[0]?.url || placeholderImg;
@@ -563,7 +659,6 @@
                     document.getElementById('search-results-table').style.display='table';
                     renderTable(tracks.slice(1), 'search-results');
                 } else {
-                    // 該当なしの場合クリア
                     document.getElementById('search-results-table').style.display='none';
                     document.getElementById('search-top-result').style.display='none';
                     document.getElementById('search-tracks-title').style.display='none';
@@ -571,9 +666,14 @@
             }, 500);
         });
 
+        // --- ライブラリ・履歴の取得 ---
         async function loadLibrary() {
             const d = await api('/me/tracks?limit=50');
-            if(d && d.items) renderTable(d.items.map(i=>i.track), 'library-results');
+            if(d && d.items) {
+                const tracks = d.items.map(i=>i.track);
+                currentLibraryUris = tracks.filter(t=>t&&t.uri).map(t=>t.uri); // お気に入り再生用に保持
+                renderTable(tracks, 'library-results');
+            }
         }
         async function loadHistory() {
             const d = await api('/me/player/recently-played?limit=50');
@@ -584,29 +684,80 @@
             }
         }
 
+        // --- ★ 再生・キュー追加機能 ---
         async function playUri(uri, contextUris = null) {
             if (!deviceId) return alert('プレイヤーの準備中、または他の端末で再生中です。');
             let body = contextUris ? { uris: contextUris, offset: { uri: uri } } : { uris: [uri] };
             await api(`/me/player/play?device_id=${deviceId}`, 'PUT', body);
         }
 
+        async function addToQueue(uri) {
+            if(!deviceId) return alert('プレイヤーが準備できていません');
+            const res = await api(`/me/player/queue?device_id=${deviceId}&uri=${encodeURIComponent(uri)}`, 'POST');
+            // エラーが返らなければ成功とする
+            alert("キューに追加しました！");
+        }
+
+        // ★ お気に入り再生機能
+        document.getElementById('lib-play-btn').onclick = () => {
+            if (currentLibraryUris.length === 0) return alert("お気に入りの曲がありません。");
+            playUri(currentLibraryUris[0], currentLibraryUris);
+        };
+        document.getElementById('lib-shuffle-btn').onclick = async () => {
+            if (currentLibraryUris.length === 0) return alert("お気に入りの曲がありません。");
+            if(deviceId) await api(`/me/player/shuffle?state=true&device_id=${deviceId}`, 'PUT');
+            document.getElementById('shuffle-btn').classList.add('active'); // UIを同期
+            playUri(currentLibraryUris[0], currentLibraryUris);
+        };
+
+        // --- コントロールボタン ---
         document.getElementById('play-btn').onclick = () => player && player.togglePlay();
         document.getElementById('next-btn').onclick = () => player && player.nextTrack();
         document.getElementById('prev-btn').onclick = () => player && player.previousTrack();
-        let shuf = false; document.getElementById('shuffle-btn').onclick = async (e) => { 
-            if(!deviceId) return; shuf = !shuf; await api(`/me/player/shuffle?state=${shuf}&device_id=${deviceId}`,'PUT'); e.target.classList.toggle('active', shuf); 
+        document.getElementById('shuffle-btn').onclick = async (e) => { 
+            if(!deviceId) return; 
+            const isShuf = !e.currentTarget.classList.contains('active');
+            await api(`/me/player/shuffle?state=${isShuf}&device_id=${deviceId}`,'PUT'); 
+            e.currentTarget.classList.toggle('active', isShuf); 
         };
-        let rep = 'off'; document.getElementById('repeat-btn').onclick = async (e) => { 
-            if(!deviceId) return; rep = rep==='off'?'context':'off'; await api(`/me/player/repeat?state=${rep}&device_id=${deviceId}`,'PUT'); e.target.classList.toggle('active', rep==='context'); 
+        document.getElementById('repeat-btn').onclick = async (e) => { 
+            if(!deviceId) return; 
+            const isRep = !e.currentTarget.classList.contains('active');
+            const state = isRep ? 'context' : 'off';
+            await api(`/me/player/repeat?state=${state}&device_id=${deviceId}`,'PUT'); 
+            e.currentTarget.classList.toggle('active', isRep); 
         };
 
-        document.getElementById('prog-bar').onclick = function(e) {
-            if(!player) return; player.getCurrentState().then(s => { if(s) player.seek(Math.floor(s.track_window.current_track.duration_ms * (e.offsetX / this.offsetWidth))); });
-        };
-        document.getElementById('vol-bar').onclick = function(e) {
-            if(!player) return; const v = e.offsetX / this.offsetWidth; document.getElementById('vol-fill').style.width = `${v*100}%`; player.setVolume(v);
-        };
+        // --- ★ ドラッグ対応シークバー＆ボリュームバー ---
+        const progRange = document.getElementById('prog-range');
+        const volRange = document.getElementById('vol-range');
 
+        // シーク（プログレス）バー
+        progRange.addEventListener('input', (e) => {
+            isDraggingProgress = true;
+            const pct = e.target.value;
+            e.target.style.background = `linear-gradient(to right, #1DB954 ${pct}%, rgba(255,255,255,0.1) ${pct}%)`;
+        });
+        progRange.addEventListener('change', (e) => {
+            isDraggingProgress = false;
+            if(!player) return;
+            player.getCurrentState().then(s => {
+                if(s) {
+                    const dur = s.track_window.current_track.duration_ms;
+                    player.seek(Math.floor(dur * (e.target.value / 100)));
+                }
+            });
+        });
+
+        // ボリュームバー
+        volRange.addEventListener('input', (e) => {
+            const val = e.target.value;
+            const pct = val * 100;
+            e.target.style.background = `linear-gradient(to right, #fff ${pct}%, rgba(255,255,255,0.1) ${pct}%)`;
+            if(player) player.setVolume(val);
+        });
+
+        // UI更新 (バーの進行状況)
         function updateUI(track, isPlaying, pos, dur) {
             const img = track.album.images[0]?.url || placeholderImg;
             document.getElementById('bg-blur').src = img;
@@ -620,14 +771,25 @@
 
             clearInterval(progInterval);
             document.getElementById('time-tot').innerText = fmtTime(dur);
+            
             const updProg = (p) => {
                 document.getElementById('time-cur').innerText = fmtTime(p);
-                document.getElementById('prog-fill').style.width = `${(p/dur)*100}%`;
+                if (!isDraggingProgress) {
+                    const pct = (p / dur) * 100;
+                    progRange.value = pct;
+                    progRange.style.background = `linear-gradient(to right, #1DB954 ${pct}%, rgba(255,255,255,0.1) ${pct}%)`;
+                }
             };
+            
             updProg(pos);
-            if (isPlaying) progInterval = setInterval(() => { player.getCurrentState().then(s => { if(s) updProg(s.position); }); }, 1000);
+            if (isPlaying) {
+                progInterval = setInterval(() => { 
+                    player.getCurrentState().then(s => { if(s) updProg(s.position); }); 
+                }, 1000);
+            }
         }
 
+        // --- テーブル生成 (キュー追加ボタンを実装) ---
         function renderTable(tracks, targetId) {
             const tbody = document.getElementById(targetId);
             tbody.innerHTML = '';
@@ -637,7 +799,9 @@
                 const img = t.album.images[0]?.url || placeholderImg;
                 const tr = document.createElement('tr');
                 tr.className = 'track-row';
+                // 行クリックで再生
                 tr.onclick = () => playUri(t.uri, uris);
+                
                 tr.innerHTML = `
                     <td>${i+1}</td>
                     <td>
@@ -649,7 +813,13 @@
                         </div>
                     </td>
                     <td style="color:var(--text-sub); font-size:0.85rem;">${t.album.name}</td>
-                    <td style="color:var(--text-sub); font-size:0.85rem;">${fmtTime(t.duration_ms)}</td>`;
+                    <td style="color:var(--text-sub); font-size:0.85rem;">
+                        ${fmtTime(t.duration_ms)}
+                        <!-- ★ キューに追加ボタン (ホバー時のみ表示) -->
+                        <button class="queue-btn" onclick="event.stopPropagation(); addToQueue('${t.uri}');" title="次に再生">
+                            <i class="fas fa-plus"></i> 追加
+                        </button>
+                    </td>`;
                 tbody.appendChild(tr);
             });
         }
