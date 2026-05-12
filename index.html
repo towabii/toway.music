@@ -27,7 +27,6 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* 背景ぼかし */
         .bg-blur {
             position: fixed; top: -20%; left: -20%; width: 140%; height: 140%;
             object-fit: cover; filter: blur(120px) brightness(0.3) saturate(1.5);
@@ -57,14 +56,12 @@
             font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.3s; margin-top: 20px; width: 100%;
         }
         .btn-primary:hover { transform: scale(1.05); box-shadow: 0 10px 20px rgba(29, 185, 84, 0.4); }
-        
         .btn-secondary {
             background: transparent; color: var(--text-sub); border: 1px solid var(--text-sub); width: 100%;
             padding: 12px 20px; border-radius: 30px; font-size: 0.95rem; cursor: pointer; transition: 0.3s; margin-top: 15px; font-weight: 500;
         }
         .btn-secondary:hover { background: rgba(255,255,255,0.1); color: white; border-color: white; }
 
-        /* メインコンテナ */
         .main-container {
             display: flex; flex: 1; height: calc(100vh - var(--player-height) - 40px);
             margin: 20px; gap: 20px; overflow: hidden;
@@ -76,34 +73,60 @@
         }
 
         /* サイドバー */
-        .sidebar { width: 250px; display: flex; flex-direction: column; padding: 20px 15px; flex-shrink: 0; }
-        .nav-menu { list-style: none; padding: 0; margin: 0 0 20px 0; }
+        .sidebar { width: 250px; display: flex; flex-direction: column; padding: 20px 15px; flex-shrink: 0; justify-content: space-between; }
+        .nav-menu { list-style: none; padding: 0; margin: 0; }
         .nav-menu li {
             padding: 12px 15px; margin-bottom: 8px; border-radius: 12px; cursor: pointer;
             display: flex; align-items: center; gap: 15px; color: var(--text-sub); font-weight: 500; transition: 0.3s;
         }
         .nav-menu li:hover, .nav-menu li.active { background: var(--glass-hover); color: var(--text-main); transform: translateX(5px); }
         .nav-menu i { font-size: 1.2rem; width: 20px; text-align: center; }
-        
-        .sidebar-title { font-size: 0.75rem; color: var(--text-sub); letter-spacing: 2px; text-transform: uppercase; margin: 15px 10px; font-weight: 700; }
-        .playlists-container { flex: 1; overflow-y: auto; margin-bottom: 10px; }
 
-        /* エクスポートボタン */
         .export-btn {
             background: rgba(255,255,255,0.05); color: var(--text-sub); border: 1px solid var(--glass-border);
-            border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; font-size: 0.85rem; font-weight: 500; transition: 0.3s;
+            border-radius: 12px; padding: 12px; cursor: pointer; text-align: center; font-size: 0.85rem; font-weight: 500; transition: 0.3s; margin-top:auto;
         }
         .export-btn:hover { background: var(--glass-hover); color: white; }
 
         /* 中央ビュー */
         .content-view { flex: 1; overflow-y: auto; padding: 30px; position: relative; scroll-behavior: smooth; }
-        .view-section { display: none; animation: fadeUp 0.4s ease; }
+        .view-section { display: none; animation: fadeUp 0.4s ease; height: 100%; }
         .view-section.active { display: block; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
-        .header-title { font-size: 2.5rem; font-weight: 700; margin: 0 0 30px 0; display: flex; align-items: center; justify-content: space-between;}
+        .header-title { font-size: 2.5rem; font-weight: 700; margin: 0 0 30px 0;}
 
-        /* 検索バー */
+        /* ★ ホーム (Now Playing) ビューのスタイル ★ */
+        .now-playing-container { display: flex; gap: 40px; height: calc(100% - 20px); position: relative; }
+        .np-left { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .np-left img {
+            width: 100%; max-width: 450px; aspect-ratio: 1/1; object-fit: cover; border-radius: 20px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8); transition: transform 0.5s ease; background-color: #222;
+        }
+        .np-left h2 { margin: 30px 0 5px 0; font-size: 2.5rem; text-align: center; line-height: 1.2; }
+        .np-left p { margin: 0; color: var(--text-sub); font-size: 1.3rem; text-align: center; }
+
+        .np-right { flex: 1.2; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; padding-right: 10px; }
+        .np-card {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 20px; padding: 25px;
+        }
+        .np-card h3 { margin: 0 0 15px 0; font-size: 1.1rem; padding-bottom: 15px; border-bottom: 1px solid var(--glass-border); }
+        .np-artist-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; background-color: #333; }
+        .np-artist-desc { font-size: 0.95rem; color: var(--text-sub); line-height: 1.6; }
+        
+        .np-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95rem; }
+        .np-info-row span:first-child { color: var(--text-sub); }
+
+        .next-track-item { display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; }
+        .next-track-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; background-color:#222;}
+
+        /* 待機状態カバー */
+        .np-empty {
+            position: absolute; inset: 0; background: var(--bg-color); display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 10; border-radius: 24px; text-align: center;
+        }
+
+        /* 検索とリスト関係 */
         .search-box {
             display: flex; align-items: center; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border);
             border-radius: 30px; padding: 12px 25px; width: 100%; max-width: 500px; margin-bottom: 30px; transition: 0.3s;
@@ -111,27 +134,21 @@
         .search-box:focus-within { border-color: rgba(29, 185, 84, 0.5); box-shadow: 0 0 15px rgba(29, 185, 84, 0.2); }
         .search-box input { background: transparent; border: none; color: white; font-size: 1.1rem; width: 100%; outline: none; margin-left: 15px; font-family: 'Outfit', sans-serif;}
 
-        /* トップ結果 (検索候補) */
         .top-result {
             background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 20px;
             padding: 25px; width: 100%; max-width: 400px; margin-bottom: 30px; cursor: pointer; transition: 0.3s;
-            position: relative; overflow: hidden;
         }
         .top-result:hover { background: var(--glass-hover); transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.4); }
-        .top-result img { width: 100px; height: 100px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); margin-bottom: 15px; background-color: #222; object-fit: cover;}
+        .top-result img { width: 100px; height: 100px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.4); margin-bottom: 15px; object-fit: cover; }
         .top-result-title { font-size: 2rem; font-weight: 700; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .top-result-type { background: var(--text-main); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; display: inline-block; margin-bottom: 10px;}
 
-        /* トラックリスト */
         .track-list { width: 100%; border-collapse: collapse; text-align: left; }
-        .track-list th { color: var(--text-sub); font-size: 0.75rem; font-weight: 500; padding: 15px 10px; border-bottom: 1px solid var(--glass-border); text-transform: uppercase; letter-spacing: 1px;}
+        .track-list th { color: var(--text-sub); font-size: 0.75rem; font-weight: 500; padding: 15px 10px; border-bottom: 1px solid var(--glass-border); text-transform: uppercase; }
         .track-list td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.02); vertical-align: middle; transition: 0.2s;}
         .track-row { cursor: pointer; border-radius: 12px; }
         .track-row:hover td { background: var(--glass-hover); }
-        .track-row:hover td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-        .track-row:hover td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
         .track-title-cell { display: flex; align-items: center; gap: 15px; }
-        .track-title-cell img { width: 45px; height: 45px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); background-color: #222; object-fit: cover;}
+        .track-title-cell img { width: 45px; height: 45px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); object-fit: cover;}
 
         /* 統計パネル */
         .stats-container { display: flex; gap: 20px; margin-bottom: 40px; }
@@ -146,9 +163,8 @@
             background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
             border: 1px solid var(--glass-border); border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 10;
         }
-        
         .player-left { display: flex; align-items: center; width: 30%; gap: 15px; }
-        .player-left img { width: 64px; height: 64px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.4); object-fit: cover; background-color: #222;}
+        .player-left img { width: 64px; height: 64px; border-radius: 12px; object-fit: cover; background-color: #222;}
         .player-info { display: flex; flex-direction: column; overflow: hidden; }
         .p-title { font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;}
         .p-artist { font-size: 0.85rem; color: var(--text-sub); }
@@ -158,7 +174,6 @@
         .ctrl-btn { background: none; border: none; color: var(--text-sub); font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .ctrl-btn:hover { color: var(--text-main); }
         .ctrl-btn.active { color: #1DB954; }
-        
         .play-btn {
             background: var(--text-main); color: #000; width: 48px; height: 48px; border-radius: 50%; border: none;
             display: flex; justify-content: center; align-items: center; font-size: 1.3rem; cursor: pointer; transition: 0.2s; padding-left: 4px;
@@ -180,49 +195,72 @@
 <body>
     <img id="bg-blur" class="bg-blur" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">
 
-    <!-- ログイン画面 -->
     <div id="login-screen">
         <div class="login-box">
             <h1>Toway Music</h1>
-            <p style="color:var(--text-sub); margin-bottom: 5px;">モダンな音楽体験をブラウザで</p>
-            <p style="color:#ff4d4d; font-size:0.85rem; font-weight:bold; margin-bottom: 25px;">※ Spotify Premium アカウントが必要です</p>
-            
+            <p style="color:var(--text-sub); margin-bottom: 25px;">モダンな音楽体験をブラウザで</p>
             <button class="btn-primary" id="login-btn">Spotifyでログイン</button>
             <button class="btn-secondary" id="import-btn"><i class="fas fa-file-import"></i> 認証JSONをインポート</button>
         </div>
     </div>
 
     <div class="main-container" id="app-container" style="display:none;">
-        <!-- サイドバー -->
+        <!-- サイドバー（プレイリストを削除し、お気に入りのみに） -->
         <aside class="sidebar glass-panel">
-            <ul class="nav-menu">
-                <li class="nav-item active" data-target="home-view"><i class="fas fa-home"></i> ホーム</li>
-                <li class="nav-item" data-target="search-view"><i class="fas fa-search"></i> 曲を検索</li>
-                <li class="nav-item" data-target="library-view"><i class="fas fa-heart"></i> お気に入り</li>
-                <li class="nav-item" data-target="history-view"><i class="fas fa-history"></i> 再生履歴</li>
-            </ul>
-            <div class="sidebar-title">あなたのプレイリスト</div>
-            <div class="playlists-container">
-                <ul class="nav-menu" id="user-playlists" style="font-size: 0.9rem;">
-                    <!-- JSで挿入 -->
+            <div>
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-target="home-view"><i class="fas fa-play-circle"></i> 再生中</li>
+                    <li class="nav-item" data-target="search-view"><i class="fas fa-search"></i> 曲を検索</li>
+                    <li class="nav-item" data-target="library-view"><i class="fas fa-heart"></i> お気に入り</li>
+                    <li class="nav-item" data-target="history-view"><i class="fas fa-history"></i> 再生履歴</li>
                 </ul>
             </div>
-            
             <div class="export-btn" id="export-btn"><i class="fas fa-file-export"></i> 認証情報をエクスポート</div>
         </aside>
 
         <!-- メインビュー -->
         <main class="content-view glass-panel" id="main-scroll">
             
-            <!-- ホーム -->
+            <!-- ホーム (Now Playing) -->
             <div id="home-view" class="view-section active">
-                <h1 class="header-title">ホーム</h1>
-                <!-- API制限回避のため、ユーザーのトップトラックを表示 -->
-                <div class="sidebar-title" style="margin-left:0;">よく聴く曲（トップトラック）</div>
-                <table class="track-list" style="margin-bottom: 30px;">
-                    <thead><tr><th>#</th><th>タイトル</th><th>アルバム</th><th>時間</th></tr></thead>
-                    <tbody id="home-top-tracks"></tbody>
-                </table>
+                <div class="np-empty" id="np-empty">
+                    <i class="fas fa-headphones" style="font-size:4rem; color:var(--text-sub); margin-bottom: 20px;"></i>
+                    <h2 style="margin:0 0 10px 0;">再生中の曲がありません</h2>
+                    <p style="color:var(--text-sub); margin:0;">検索やお気に入りから曲を再生してください</p>
+                </div>
+                
+                <div class="now-playing-container">
+                    <div class="np-left">
+                        <img id="np-main-art" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="">
+                        <h2 id="np-main-title">準備完了</h2>
+                        <p id="np-main-artist">-</p>
+                    </div>
+                    <div class="np-right">
+                        <!-- Wikipedia情報 -->
+                        <div class="np-card">
+                            <h3>アーティストについて</h3>
+                            <img id="np-artist-img" class="np-artist-img" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+                            <p class="np-artist-desc" id="np-artist-desc">アーティスト情報を取得中...</p>
+                        </div>
+                        <!-- クレジット/情報 -->
+                        <div class="np-card">
+                            <h3>楽曲情報・クレジット</h3>
+                            <div class="np-info-row"><span>アルバム</span><span id="np-album-name" style="font-weight:500;">-</span></div>
+                            <div class="np-info-row"><span>アーティスト</span><span id="np-track-artist" style="font-weight:500;">-</span></div>
+                        </div>
+                        <!-- 次に再生される曲 -->
+                        <div class="np-card">
+                            <h3>次に再生される曲</h3>
+                            <div class="next-track-item">
+                                <img id="np-next-img" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+                                <div>
+                                    <div id="np-next-title" style="font-weight:700; margin-bottom:3px;">なし</div>
+                                    <div id="np-next-artist" style="font-size:0.8rem; color:var(--text-sub);">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- 検索 -->
@@ -230,12 +268,11 @@
                 <h1 class="header-title">検索</h1>
                 <div class="search-box">
                     <i class="fas fa-search" style="color: var(--text-sub);"></i>
-                    <input type="text" id="search-input" placeholder="曲名やアーティスト名で検索...">
+                    <input type="text" id="search-input" placeholder="曲名やアーティスト名を入力...">
                 </div>
 
-                <!-- トップ結果 -->
                 <div id="search-top-result" style="display:none;">
-                    <h2 class="sidebar-title" style="margin-left:0;">トップの結果</h2>
+                    <h3 style="margin-bottom:15px; color:var(--text-sub); font-size:1rem;">トップの結果</h3>
                     <div class="top-result" id="top-result-card">
                         <img id="top-img" src="" alt="">
                         <div class="top-result-title" id="top-title">Title</div>
@@ -243,7 +280,7 @@
                     </div>
                 </div>
 
-                <h2 class="sidebar-title" id="search-tracks-title" style="margin-left:0; display:none;">検索結果</h2>
+                <h3 id="search-tracks-title" style="display:none; margin-bottom:15px; color:var(--text-sub); font-size:1rem;">検索結果</h3>
                 <table class="track-list" id="search-results-table" style="display:none; margin-bottom: 40px;">
                     <thead><tr><th>#</th><th>タイトル</th><th>アルバム</th><th>時間</th></tr></thead>
                     <tbody id="search-results"></tbody>
@@ -265,31 +302,16 @@
                 <div class="stats-container">
                     <div class="stat-box">
                         <div class="stat-icon"><i class="fas fa-history"></i></div>
-                        <div class="stat-info">
-                            <h4>直近50件の合計再生時間</h4>
-                            <p id="stat-history-total">0時間 0分</p>
-                        </div>
+                        <div class="stat-info"><h4>直近の合計再生時間</h4><p id="stat-history-total">0時間 0分</p></div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-icon"><i class="fas fa-headphones"></i></div>
-                        <div class="stat-info">
-                            <h4>当サイトでの累計再生時間</h4>
-                            <p id="stat-local-total">0時間 0分</p>
-                        </div>
+                        <div class="stat-info"><h4>当サイトでの累計時間</h4><p id="stat-local-total">0時間 0分</p></div>
                     </div>
                 </div>
                 <table class="track-list">
                     <thead><tr><th>#</th><th>タイトル</th><th>アルバム</th><th>時間</th></tr></thead>
                     <tbody id="history-results"></tbody>
-                </table>
-            </div>
-
-            <!-- プレイリスト詳細 -->
-            <div id="list-view" class="view-section">
-                <h1 class="header-title" id="list-title">プレイリスト</h1>
-                <table class="track-list">
-                    <thead><tr><th>#</th><th>タイトル</th><th>アルバム</th><th>時間</th></tr></thead>
-                    <tbody id="list-results"></tbody>
                 </table>
             </div>
         </main>
@@ -332,14 +354,14 @@
     <script>
         const CLIENT_ID = '09348ba1442d457cb15867622af1f96a';
         const REDIRECT_URI = 'https://towabii.github.io/toway.music/';
-        // スコープに user-top-read を追加
-        const SCOPES = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-recently-played user-library-read user-library-modify playlist-read-private playlist-read-collaborative user-top-read';
+        const SCOPES = 'streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state user-read-recently-played user-library-read user-library-modify';
 
         let player = null, deviceId = null, progInterval = null;
         let isPlayingGlobal = false;
+        let currentNpTrackId = null;
         const placeholderImg = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
-        // --- 当サイト累計再生時間 ---
+        // --- ローカル再生時間 ---
         let localTotalSec = parseInt(localStorage.getItem('toway_local_sec') || '0');
         setInterval(() => {
             if (isPlayingGlobal) {
@@ -351,16 +373,14 @@
             }
         }, 1000);
 
-        // --- トークン管理 (JSON対応/自動更新) ---
+        // --- トークン管理 ---
         async function getValidToken() {
             let tokens = JSON.parse(localStorage.getItem('spotify_tokens') || 'null');
             if (!tokens || !tokens.access_token) return null;
-
             if (Date.now() > tokens.expires_at - 60000 && tokens.refresh_token) {
                 try {
                     const res = await fetch('https://accounts.spotify.com/api/token', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: tokens.refresh_token, client_id: CLIENT_ID })
                     });
                     const d = await res.json();
@@ -369,28 +389,32 @@
                         if (d.refresh_token) tokens.refresh_token = d.refresh_token;
                         tokens.expires_at = Date.now() + (d.expires_in * 1000);
                         localStorage.setItem('spotify_tokens', JSON.stringify(tokens));
-                    } else { return null; }
+                    } else return null;
                 } catch(e) { return null; }
             }
             return tokens.access_token;
         }
 
-        // --- API ラッパー ---
+        // --- API 通信 (エラー解析強化) ---
         async function api(endpoint, method = 'GET', body = null) {
             try {
                 const token = await getValidToken();
-                if (!token) throw new Error('No valid token');
+                if (!token) throw new Error('No token');
 
                 const options = { method, headers: { 'Authorization': `Bearer ${token}` } };
                 if (body) { options.headers['Content-Type'] = 'application/json'; options.body = JSON.stringify(body); }
                 const res = await fetch(`https://api.spotify.com/v1${endpoint}`, options);
                 if (res.status === 204) return null;
-                if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+                if (!res.ok) {
+                    const err = await res.text();
+                    console.error(`API Error [${res.status}]:`, err);
+                    throw new Error(res.status);
+                }
                 return await res.json();
-            } catch (e) { console.error(`API Error on ${endpoint}:`, e); return null; }
+            } catch (e) { return null; }
         }
 
-        // --- 認証 (PKCE) ---
+        // --- 認証 ---
         function genStr(len) {
             const p = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             return Array.from({length: len}, () => p.charAt(Math.floor(Math.random() * p.length))).join('');
@@ -406,26 +430,22 @@
             window.location = 'https://accounts.spotify.com/authorize?' + args;
         };
 
-        // JSONインポート
         document.getElementById('import-btn').onclick = () => {
-            const jsonStr = prompt("他のPCでエクスポートした認証用JSONデータを貼り付けてください:");
+            const jsonStr = prompt("エクスポートしたJSONを貼り付けてください:");
             if (!jsonStr) return;
             try {
-                const data = JSON.parse(jsonStr);
-                if (data.access_token && data.refresh_token) {
+                const d = JSON.parse(jsonStr);
+                if (d.access_token) {
                     localStorage.setItem('spotify_tokens', jsonStr);
-                    alert("認証情報をインポートしました。");
-                    location.reload();
-                } else { alert("無効なJSONデータです。"); }
-            } catch(e) { alert("JSONの解析に失敗しました。コピー漏れがないか確認してください。"); }
+                    alert("インポート完了。再読み込みします。"); location.reload();
+                } else alert("無効なデータです。");
+            } catch(e) { alert("JSON解析に失敗しました。"); }
         };
 
-        // JSONエクスポート
         document.getElementById('export-btn').onclick = () => {
-            const tokens = localStorage.getItem('spotify_tokens');
-            if (tokens) {
-                prompt("以下のJSON文字列をコピーし、使いたいPCで「インポート」から貼り付けてください:", tokens);
-            } else { alert("エクスポート可能な認証情報がありません。"); }
+            const t = localStorage.getItem('spotify_tokens');
+            if (t) prompt("以下の文字をコピーしてください:", t);
+            else alert("認証情報がありません。");
         };
 
         async function initAuth() {
@@ -438,102 +458,93 @@
                 });
                 const d = await r.json();
                 if (d.access_token) { 
-                    const tokens = { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: Date.now() + (d.expires_in * 1000) };
-                    localStorage.setItem('spotify_tokens', JSON.stringify(tokens));
-                    startApp();
-                    return;
+                    localStorage.setItem('spotify_tokens', JSON.stringify({ access_token: d.access_token, refresh_token: d.refresh_token, expires_at: Date.now() + (d.expires_in * 1000) }));
+                    startApp(); return;
                 }
             }
-            const token = await getValidToken();
-            if (token) startApp();
+            if (await getValidToken()) startApp();
         }
 
         function startApp() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app-container').style.display = 'flex';
             document.getElementById('player-bar').style.display = 'flex';
-            const lh = Math.floor(localTotalSec / 3600), lm = Math.floor((localTotalSec % 3600) / 60);
-            document.getElementById('stat-local-total').innerText = `${lh}時間 ${lm}分`;
-            loadData();
         }
 
-        // --- SDK 初期化 ---
+        // --- SDK ---
         window.onSpotifyWebPlaybackSDKReady = async () => {
-            const token = await getValidToken();
-            if (!token) return;
-
-            player = new Spotify.Player({ 
-                name: 'Toway Web Player', 
-                getOAuthToken: async cb => { cb(await getValidToken()); }, 
-                volume: 0.5 
-            });
+            if (!(await getValidToken())) return;
+            player = new Spotify.Player({ name: 'Toway Web Player', getOAuthToken: async cb => { cb(await getValidToken()); }, volume: 0.5 });
             
             player.addListener('ready', ({ device_id }) => {
                 deviceId = device_id;
                 api('/me/player', 'PUT', { device_ids: [device_id], play: false });
             });
 
-            // DRMの警告はコンソールに出ますが、ブラウザの仕様であり無視して問題ありません
             player.addListener('player_state_changed', state => {
                 if (!state) return;
                 const track = state.track_window.current_track;
                 isPlayingGlobal = !state.paused;
                 updateUI(track, isPlayingGlobal, state.position, track.duration_ms);
+                updateHomeView(track, state.track_window.next_tracks);
             });
             player.connect();
         };
 
-        // --- データ取得 ---
-        async function loadData() {
-            // API制限のため、Featured/New Releaseの代わりにユーザートップトラックを取得
-            const topTracks = await api('/me/top/tracks?limit=15');
-            if(topTracks && topTracks.items) {
-                renderTable(topTracks.items, 'home-top-tracks');
-            }
-            
-            // プレイリスト一覧 (403対策で自分のもののみ取得)
-            const pl = await api('/me/playlists?limit=50');
-            const plContainer = document.getElementById('user-playlists');
-            plContainer.innerHTML = '';
-            if(pl && pl.items) {
-                pl.items.forEach(i => {
-                    if(!i || i.owner.id === 'spotify') return; // 公式等で弾かれる可能性があるものを念のため除外
-                    const li = document.createElement('li');
-                    li.innerHTML = `<i class="fas fa-list-ul"></i> ${i.name}`;
-                    li.onclick = () => loadList(i.id, i.name);
-                    plContainer.appendChild(li);
-                });
-            }
+        // --- ホーム画面更新 (Wikipedia連動) ---
+        async function fetchWiki(artistName) {
+            try {
+                const res = await fetch(`https://ja.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`);
+                if(res.ok) {
+                    const data = await res.json();
+                    if(data.extract) return data.extract;
+                }
+            } catch(e) {}
+            return "（Wikipediaから詳細情報を取得できませんでした）";
         }
 
-        async function loadLibrary() {
-            const d = await api('/me/tracks?limit=50');
-            if(d && d.items) renderTable(d.items.map(i=>i.track), 'library-results');
-        }
+        async function updateHomeView(track, nextTracks) {
+            document.getElementById('np-empty').style.display = 'none';
 
-        async function loadHistory() {
-            const d = await api('/me/player/recently-played?limit=50');
-            if(d && d.items) {
-                renderTable(d.items.map(i=>i.track), 'history-results');
-                const totalMs = d.items.reduce((acc, item) => acc + (item.track ? item.track.duration_ms : 0), 0);
-                const totalMin = Math.floor(totalMs / 60000);
-                document.getElementById('stat-history-total').innerText = `${Math.floor(totalMin / 60)}時間 ${totalMin % 60}分`;
-            }
-        }
+            if(track.id === currentNpTrackId) return; // 同じ曲なら更新不要
+            currentNpTrackId = track.id;
 
-        async function loadList(id, name) {
-            navTo('list-view');
-            document.getElementById('list-title').innerText = name;
-            document.getElementById('list-results').innerHTML = ''; // クリア
-            const d = await api(`/playlists/${id}/tracks?limit=100`);
-            if(d && d.items) {
-                renderTable(d.items.map(i=>i.track), 'list-results', `spotify:playlist:${id}`);
+            const artUrl = track.album.images[0]?.url || placeholderImg;
+            document.getElementById('np-main-art').src = artUrl;
+            document.getElementById('np-main-title').innerText = track.name;
+            document.getElementById('np-main-artist').innerText = track.artists[0].name;
+
+            document.getElementById('np-album-name').innerText = track.album.name;
+            document.getElementById('np-track-artist').innerText = track.artists[0].name;
+
+            // Wikipediaから概要を取得
+            document.getElementById('np-artist-desc').innerText = "情報を読み込んでいます...";
+            const wikiText = await fetchWiki(track.artists[0].name);
+            document.getElementById('np-artist-desc').innerText = wikiText;
+
+            // Spotify APIからアーティスト画像を取得
+            const artistId = track.artists[0].uri.split(':')[2];
+            const artistData = await api(`/artists/${artistId}`);
+            if(artistData && artistData.images.length > 0) {
+                document.getElementById('np-artist-img').src = artistData.images[0].url;
             } else {
-                alert("このプレイリストはSpotifyの制限により取得できません。");
+                document.getElementById('np-artist-img').src = artUrl; // 代替
+            }
+
+            // 次の曲
+            if(nextTracks && nextTracks.length > 0) {
+                const nt = nextTracks[0];
+                document.getElementById('np-next-img').src = nt.album.images[0]?.url || placeholderImg;
+                document.getElementById('np-next-title').innerText = nt.name;
+                document.getElementById('np-next-artist').innerText = nt.artists[0].name;
+            } else {
+                document.getElementById('np-next-img').src = placeholderImg;
+                document.getElementById('np-next-title').innerText = "なし";
+                document.getElementById('np-next-artist').innerText = "-";
             }
         }
 
-        // --- 検索機能 (400エラー対策: type=trackのみに変更) ---
+        // --- 検索機能 (確実な動作保証) ---
         let searchTimeout;
         document.getElementById('search-input').addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
@@ -545,58 +556,56 @@
                 return;
             }
             searchTimeout = setTimeout(async () => {
-                // type=playlist を外して、曲単体での検索にする(400エラー回避)
-                const query = encodeURIComponent(q);
-                const d = await api(`/search?q=${query}&type=track&limit=20`);
+                // 安全なURL構築
+                const params = new URLSearchParams({ q: q, type: 'track', limit: 20 });
+                const d = await api(`/search?${params.toString()}`);
                 
                 if(d && d.tracks && d.tracks.items.length > 0) {
                     const tracks = d.tracks.items;
                     
-                    // トップ結果
                     const top = tracks[0];
                     document.getElementById('search-top-result').style.display='block';
-                    document.getElementById('top-img').src = top.album.images.length > 0 ? top.album.images[0].url : placeholderImg;
+                    document.getElementById('top-img').src = top.album.images[0]?.url || placeholderImg;
                     document.getElementById('top-title').innerText = top.name;
                     document.getElementById('top-artist').innerText = top.artists[0].name;
-                    // クリックでトップの曲からリスト順に再生開始
                     document.getElementById('top-result-card').onclick = () => playUri(top.uri, tracks.map(t=>t.uri));
 
-                    // トラックリスト (残り)
                     document.getElementById('search-tracks-title').style.display='block';
                     document.getElementById('search-results-table').style.display='table';
                     renderTable(tracks.slice(1), 'search-results');
                 }
-            }, 400);
+            }, 500);
         });
 
-        // --- 再生実行関数 ---
-        async function playUri(uri, contextUris = null, offsetUri = null) {
-            if (!deviceId) return alert('プレイヤーの準備ができていません。(別の端末でSpotifyが開いている場合は閉じてください)');
-            
-            let body = {};
-            if (contextUris && contextUris.length > 0) {
-                body = { uris: contextUris, offset: { uri: uri } };
-            } else if (offsetUri) {
-                body = { context_uri: uri, offset: { uri: offsetUri } };
-            } else if (uri.includes('spotify:track:')) {
-                body = { uris: [uri] };
-            } else {
-                body = { context_uri: uri };
+        // --- リスト取得 ---
+        async function loadLibrary() {
+            const d = await api('/me/tracks?limit=50');
+            if(d && d.items) renderTable(d.items.map(i=>i.track), 'library-results');
+        }
+        async function loadHistory() {
+            const d = await api('/me/player/recently-played?limit=50');
+            if(d && d.items) {
+                renderTable(d.items.map(i=>i.track), 'history-results');
+                const tMs = d.items.reduce((a, i) => a + (i.track?.duration_ms || 0), 0);
+                document.getElementById('stat-history-total').innerText = `${Math.floor((tMs/60000)/60)}時間 ${Math.floor(tMs/60000)%60}分`;
             }
+        }
 
+        async function playUri(uri, contextUris = null) {
+            if (!deviceId) return alert('プレイヤーの準備中、または他の端末で再生中です。');
+            let body = contextUris ? { uris: contextUris, offset: { uri: uri } } : { uris: [uri] };
             await api(`/me/player/play?device_id=${deviceId}`, 'PUT', body);
         }
 
-        // --- コントロール ---
+        // --- プレイヤー操作 ---
         document.getElementById('play-btn').onclick = () => player && player.togglePlay();
         document.getElementById('next-btn').onclick = () => player && player.nextTrack();
         document.getElementById('prev-btn').onclick = () => player && player.previousTrack();
-
         let shuf = false; document.getElementById('shuffle-btn').onclick = async (e) => { 
             if(!deviceId) return; shuf = !shuf; await api(`/me/player/shuffle?state=${shuf}&device_id=${deviceId}`,'PUT'); e.target.classList.toggle('active', shuf); 
         };
         let rep = 'off'; document.getElementById('repeat-btn').onclick = async (e) => { 
-            if(!deviceId) return; rep = rep === 'off' ? 'context' : 'off'; await api(`/me/player/repeat?state=${rep}&device_id=${deviceId}`,'PUT'); e.target.classList.toggle('active', rep === 'context'); 
+            if(!deviceId) return; rep = rep==='off'?'context':'off'; await api(`/me/player/repeat?state=${rep}&device_id=${deviceId}`,'PUT'); e.target.classList.toggle('active', rep==='context'); 
         };
 
         document.getElementById('prog-bar').onclick = function(e) {
@@ -606,9 +615,8 @@
             if(!player) return; const v = e.offsetX / this.offsetWidth; document.getElementById('vol-fill').style.width = `${v*100}%`; player.setVolume(v);
         };
 
-        // --- UI更新 ---
         function updateUI(track, isPlaying, pos, dur) {
-            const img = track.album.images.length > 0 ? track.album.images[0].url : placeholderImg;
+            const img = track.album.images[0]?.url || placeholderImg;
             document.getElementById('bg-blur').src = img;
             document.getElementById('p-art').src = img;
             document.getElementById('p-title').innerText = track.name;
@@ -625,46 +633,31 @@
                 document.getElementById('prog-fill').style.width = `${(p/dur)*100}%`;
             };
             updProg(pos);
-            if (isPlaying) {
-                progInterval = setInterval(() => { player.getCurrentState().then(s => { if(s) updProg(s.position); }); }, 1000);
-            }
+            if (isPlaying) progInterval = setInterval(() => { player.getCurrentState().then(s => { if(s) updProg(s.position); }); }, 1000);
         }
 
-        // --- ヘルパー関数 ---
-        function renderTable(tracks, targetId, contextUri = null) {
+        function renderTable(tracks, targetId) {
             const tbody = document.getElementById(targetId);
             tbody.innerHTML = '';
-            
-            const validTracks = tracks.filter(t => t && t.uri);
-            const trackUris = validTracks.map(t => t.uri); 
-
-            validTracks.forEach((t, i) => {
-                const img = t.album && t.album.images && t.album.images.length > 0 ? t.album.images[0].url : placeholderImg;
+            const valid = tracks.filter(t => t && t.uri);
+            const uris = valid.map(t => t.uri); 
+            valid.forEach((t, i) => {
+                const img = t.album.images[0]?.url || placeholderImg;
                 const tr = document.createElement('tr');
                 tr.className = 'track-row';
-                
-                tr.onclick = () => {
-                    if (contextUri && contextUri.includes('spotify:playlist:')) {
-                        playUri(contextUri, null, t.uri);
-                    } else {
-                        playUri(t.uri, trackUris);
-                    }
-                };
-
+                tr.onclick = () => playUri(t.uri, uris);
                 tr.innerHTML = `
                     <td>${i+1}</td>
                     <td>
-                        <div class="track-title-cell">
-                            <img src="${img}">
+                        <div class="track-title-cell"><img src="${img}">
                             <div>
-                                <div style="font-weight:700; font-size:0.95rem; margin-bottom:3px;">${t.name}</div>
+                                <div style="font-weight:700; margin-bottom:3px;">${t.name}</div>
                                 <div style="font-size:0.8rem; color:var(--text-sub);">${t.artists[0].name}</div>
                             </div>
                         </div>
                     </td>
                     <td style="color:var(--text-sub); font-size:0.85rem;">${t.album.name}</td>
-                    <td style="color:var(--text-sub); font-size:0.85rem;">${fmtTime(t.duration_ms)}</td>
-                `;
+                    <td style="color:var(--text-sub); font-size:0.85rem;">${fmtTime(t.duration_ms)}</td>`;
                 tbody.appendChild(tr);
             });
         }
@@ -678,7 +671,6 @@
                 navTo(el.dataset.target);
                 if(el.dataset.target === 'library-view') loadLibrary();
                 if(el.dataset.target === 'history-view') loadHistory();
-                if(el.dataset.target === 'home-view') loadData();
             };
         });
         function navTo(id) {
